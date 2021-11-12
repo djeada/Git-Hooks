@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-remove_diactrics ()
+remove_carriage_return ()
 {
-    sed -i 'y/ąāáǎàćēéěèęīíǐìłńōóǒòóśūúǔùǖǘǚǜżźĄĀÁǍÀĆĒĘÉĚÈĪÍǏÌŁŃŌÓǑÒÓŚŪÚǓÙǕǗǙǛŻŹ/aaaaaceeeeeiiiilnooooosuuuuüüüüzzAAAAACEEEEEIIIILNOOOOOSUUUUÜÜÜÜZZ/' $1
+    sed -i 's/\r//g' $1
 }
 
 main() {
@@ -15,10 +15,10 @@ main() {
     if [ $1 == '.' ] || [ -d "${1}" ]; then
         for file in $(find $1 -maxdepth 10 -type f)
         do
-            remove_diactrics $file
+            remove_carriage_return $file
         done
     elif [ -f "${1}" ]; then
-        remove_diactrics $1
+        remove_carriage_return $1
     else
         echo "$1 is not a valid path!"
     fi
