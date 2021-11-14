@@ -1,5 +1,3 @@
-
-# get file name from command line
 import sys
 import pathlib
 
