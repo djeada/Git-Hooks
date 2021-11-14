@@ -90,7 +90,7 @@ if __name__ == '__main__':
 
     # check if user provided file name
     if len(sys.argv) != 2:
-        print('Usage: python remove_carriage_return.py <dir_name>')
+        print('Usage: python remove_diacritics.py <dir_name>')
         exit()
     
     # check if file exists
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         print('Dir does not exist')
         exit()
     
-    # find all files in directory and remove carriage return
+    # find all files in directory and remove diacritics
     for file in pathlib.Path(file_name).glob('**/*'):
         if file.is_file():
             remove_diacritics(file)
