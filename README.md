@@ -25,6 +25,17 @@ You have to create a file named <code>pre-commit</code> in the <code>.git/hooks<
     #!/usr/bin/env bash
     hooks/_run_all.sh
 
+## Available scripts
+
+create a table with links to all available scripts in src. first column is the name of the script, second column is the description, third column is the link to python script, fourth column is the link to bash script.
+
+| Script | Description | Python | Bash |
+|:------:|:-----------:|:------:|:----:|
+| remove diacritics | Removes diacritics from every file in a given directory. | src/remove_diacritics.py | src/remove_diacritics.sh |
+| remove carriage returns | Removes carriage returns from every file in a given directory. | src/remove_carriage_returns.py | src/remove_carriage_returns.sh |
+| last line empty | Ensures that every file a given directory ends with a newline. | src/last_line_empty.py | src/last_line_empty.sh |
+| no binaries | Checks if there are any binaries in the staging area. | src/no_binaries.py | src/no_binaries.sh |
+
 ## Bibliography
 
 * https://www.git-scm.com/docs/githooks
