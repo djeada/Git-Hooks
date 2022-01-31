@@ -1,0 +1,1 @@
+../src/no_binaries.sh
