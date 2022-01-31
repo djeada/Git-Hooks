@@ -18,6 +18,14 @@ Then you can review your code to see that everything is still in order, and try 
  
 You can also run tests, although this normally takes more than a few seconds. As a result, we discourage running tests on pre-commit. 
 
+## How to use a custom hook?
+
+You have to create a file named <code>pre-commit</code> in the <code>.git/hooks</code> directory. The name is crucial, you can't change it if you want git to recognize your script. Now edit the <code>pre-commit</code> file and put whatever commands you want git to execute whenever you will attempt to make a commit. For this repository we use the following script:
+
+  #!/bin/sh
+  hooks/run_all.sh
+
+
 ## Bibliography
 
 * https://githooks.com/
