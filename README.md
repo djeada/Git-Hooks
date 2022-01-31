@@ -3,7 +3,7 @@ A collection of useful git hooks.
 
 ## What are hooks?
 
-When you open any decent repository, you'll see a Hooks folder. Git iteslf contains a collection of hooks that can run scripts in a variety of scenarios. For example, before attempting to push your code to the repository, after pulling it from the remote, or before creating a new commit. 
+When you open any decent repository, you'll see a <code>hooks</code> folder. Git iteslf contains a collection of hooks that can run scripts in a variety of scenarios. For example, before attempting to push your code to the repository, after pulling it from the remote, or before creating a new commit. 
 
 ## Pre-commit
 
