@@ -25,6 +25,8 @@ You have to create a file named <code>pre-commit</code> in the <code>.git/hooks<
     #!/usr/bin/env bash
     hooks/_run_all.sh
 
+Don't forget to add execution permissions to the <code>pre-commit</code> script!
+
 ## Available scripts
 
 | Script | Description | Python | Bash |
@@ -39,4 +41,3 @@ You have to create a file named <code>pre-commit</code> in the <code>.git/hooks<
 
 * https://www.git-scm.com/docs/githooks
 * https://githooks.com/
-
