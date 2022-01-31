@@ -27,8 +27,6 @@ You have to create a file named <code>pre-commit</code> in the <code>.git/hooks<
 
 ## Available scripts
 
-create a table with links to all available scripts in src. first column is the name of the script, second column is the description, third column is the link to python script, fourth column is the link to bash script.
-
 | Script | Description | Python | Bash |
 |:------:|:-----------:|:------:|:----:|
 | remove diacritics | Removes diacritics from every file in a given directory. | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/remove_diacritics.py">remove_diacritics.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/remove_diacritics.sh">remove_diacritics.sh</a> |
@@ -36,6 +34,7 @@ create a table with links to all available scripts in src. first column is the n
 | last line empty | Ensures that every file a given directory ends with a newline. | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/last_line_empty.py">last_line_empty.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/last_line_empty.sh">last_line_empty.sh</a> |
 | no binaries | Checks if there are any binaries in the staging area. | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/no_binaries.py">no_binaries.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/no_binaries.sh">no_binaries.sh</a> |
 | correct file names | Ensures that no filename has spaces in it. | <a>correct_file_names.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/correct_file_names.sh">correct_file_names.sh</a> |
+
 ## Bibliography
 
 * https://www.git-scm.com/docs/githooks
