@@ -27,4 +27,5 @@ You have to create a file named <code>pre-commit</code> in the <code>.git/hooks<
 
 ## Bibliography
 
+* https://www.git-scm.com/docs/githooks
 * https://githooks.com/
