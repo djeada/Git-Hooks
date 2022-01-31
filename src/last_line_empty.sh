@@ -22,7 +22,7 @@ main() {
     if [ $# -eq 0 ]; then
         echo "Must provide a path!"
         exit 1
-    else [ $# -gt 1 ]
+    elif [ $# -gt 1 ]; then
         echo "Only one path is supported!"
         exit 1
     fi
@@ -41,3 +41,4 @@ main() {
 }
 
 main "$@"
+

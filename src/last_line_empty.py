@@ -39,3 +39,4 @@ if __name__ == "__main__":
     for file in pathlib.Path(file_name).glob("**/*"):
         if file.is_file():
             make_sure_last_line_is_empty(file)
+

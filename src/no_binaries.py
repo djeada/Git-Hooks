@@ -50,3 +50,4 @@ if __name__ == "__main__":
     # remove .git/info/sparse-checkout/binaries if empty
     if not pathlib.Path(binaries_dir).is_dir():
         shutil.rmtree(binaries_dir)
+
