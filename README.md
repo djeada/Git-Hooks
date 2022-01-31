@@ -10,7 +10,7 @@ When you open any decent repository, you'll see a <code>hooks</code> folder. Git
 When the <code>git commit</code> command is used, pre-commit scripts are run.
 
 Pre-commit is frequently used to run tasks that check your code to ensure that it fits the code style used by the rest of programming team.
-For Python projects, for example, there are programs like <code>black</code> and <code>flake8</code> that validate that code complies to established standards.
+For Python projects, for example, there are tools like <code>black</code> and <code>flake8</code> that check code to ensure that it adheres to established standards. 
 
 If it does not, they will block you from making a new commit and will change your code.
 
