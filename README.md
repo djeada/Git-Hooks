@@ -23,7 +23,7 @@ You can also run tests, although this normally takes more than a few seconds. As
 You have to create a file named <code>pre-commit</code> in the <code>.git/hooks</code> directory. The name is crucial, you can't change it if you want git to recognize your script. Now edit the <code>pre-commit</code> file and put whatever commands you want git to execute whenever you will attempt to make a commit. For this repository we use the following script:
 
     #!/usr/bin/env bash
-    hooks/run_all.sh
+    hooks/_run_all.sh
 
 ## Bibliography
 
