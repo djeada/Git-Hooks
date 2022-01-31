@@ -31,11 +31,11 @@ create a table with links to all available scripts in src. first column is the n
 
 | Script | Description | Python | Bash |
 |:------:|:-----------:|:------:|:----:|
-| remove diacritics | Removes diacritics from every file in a given directory. | src/remove_diacritics.py | src/remove_diacritics.sh |
-| remove carriage returns | Removes carriage returns from every file in a given directory. | src/remove_carriage_returns.py | src/remove_carriage_returns.sh |
-| last line empty | Ensures that every file a given directory ends with a newline. | src/last_line_empty.py | src/last_line_empty.sh |
-| no binaries | Checks if there are any binaries in the staging area. | src/no_binaries.py | src/no_binaries.sh |
-
+| remove diacritics | Removes diacritics from every file in a given directory. | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/remove_diacritics.py">remove_diacritics.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/remove_diacritics.sh">remove_diacritics.sh</a> |
+| remove carriage returns | Removes carriage returns from every file in a given directory. | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/remove_carriage_returns.py">remove_carriage_returns.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/remove_carriage_returns.sh">remove_carriage_returns.sh</a> |
+| last line empty | Ensures that every file a given directory ends with a newline. | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/last_line_empty.py">last_line_empty.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/last_line_empty.sh">last_line_empty.sh</a> |
+| no binaries | Checks if there are any binaries in the staging area. | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/no_binaries.py">no_binaries.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/no_binaries.sh">no_binaries.sh</a> |
+| correct file names | Ensures that no filename has spaces in it. | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/correct_file_names.py">correct_file_names.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/correct_file_names.sh">correct_file_names.sh</a> |
 ## Bibliography
 
 * https://www.git-scm.com/docs/githooks
