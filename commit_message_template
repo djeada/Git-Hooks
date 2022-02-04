@@ -1,0 +1,26 @@
+# TITLE
+# [scope]: [type]: short summary
+#
+# Scope:
+# major - backwards incompatible
+# minor - backwards compatible
+#
+# Type:
+# feature - extensions on the old feature or completely new
+# fix - bug fix, no new features
+# refactor - e.g. renaming variables, decoupling classes etc.
+# docs - changes in the docs, not code
+# style - changes in the code not affecting the code logic
+# test - changes only in unit tests, production code unaffected
+#
+# Max 50 chars: ######################
+#
+# Blank line between the title and the body
+#
+# Body
+# - Eplanation of *what* and *why* was changed (not *how*).
+# - Dashes to separate points.
+#
+# [ticket] - if applicable
+# 
+# Max 72 chars: #############################################
