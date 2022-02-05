@@ -1,1 +1,0 @@
-../src/remove_diacritics.sh
