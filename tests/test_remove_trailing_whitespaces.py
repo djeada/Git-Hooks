@@ -1,5 +1,7 @@
 from src.remove_trailing_whitespaces import remove_trailing_whitespaces
 import subprocess
+import sys
+import pytest
 
 original_content = "This is a test file \n" \
                    "This is a test file      \n" \
@@ -20,6 +22,7 @@ def test_remove_trailing_whitespaces(tmpdir):
     assert file_name.read() == expected_content
 
 # test bash script
+@pytest.mark.skipif(sys.platform == "win32", reason="bash script only available on Linux")
 def test_remove_trailing_whitespaces_bash(tmpdir):
     # create a temporary text file with trailing whitespaces.
     # test if remove_trailing_whitespaces() removes the whitespaces from the file.
