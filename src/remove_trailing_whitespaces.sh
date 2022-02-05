@@ -7,7 +7,6 @@ remove_trailing_whitespaces() {
     echo "Checking each line of ${file} for trailing whitespaces..."
 
     while IFS= read -r line; do
-        echo $line
         if [[ $line == *[[:space:]] ]]; then
             echo "Found trailing whitespaces in line: ${line}"
             echo "${line}" | sed 's/[ \t]*$//' >> "${file}".tmp
