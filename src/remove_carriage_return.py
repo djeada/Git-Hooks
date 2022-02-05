@@ -37,4 +37,3 @@ if __name__ == "__main__":
     for file in pathlib.Path(file_name).glob("**/*"):
         if file.is_file():
             remove_carriage_return(file)
-

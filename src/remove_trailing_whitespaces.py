@@ -1,6 +1,7 @@
 import sys
 import pathlib
 
+
 def remove_trailing_whitespaces(file_name: str) -> None:
     # read file contents
     with open(file_name, "r", encoding="utf-8") as file:
@@ -32,4 +33,3 @@ if __name__ == "__main__":
     for file in pathlib.Path(file_name).glob("**/*"):
         if file.is_file():
             remove_trailing_whitespaces(file)
-            

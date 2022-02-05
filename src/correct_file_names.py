@@ -6,9 +6,9 @@ def correct_file_name(file_name: str) -> None:
 
     path = pathlib.Path(file_name)
     correct_file_name = path.name.replace(" ", "_").lower()
-    
+
     if correct_file_name != path.name:
-        path.rename(path.absolute().parent / correct_file_name) 
+        path.rename(path.absolute().parent / correct_file_name)
 
 
 if __name__ == "__main__":
@@ -29,4 +29,3 @@ if __name__ == "__main__":
     for file in pathlib.Path(file_name).glob("**/*"):
         if file.is_file() or file.is_dir():
             correct_file_name(file)
-
