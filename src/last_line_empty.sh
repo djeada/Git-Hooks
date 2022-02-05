@@ -10,7 +10,7 @@ assert_last_line_empty() {
     if [ -z "${last_line}" ]; then
         echo "Last line is empty!"
         # remove all empty lines at the end of the file
-        # this way we make sure that there is one empty line 
+        # this way we make sure that there is one empty line
         # at the end of the file
         while [[ -z "${last_line}" ]]; do
             tail -n 1 "${file}" > "${file}.tmp"
@@ -23,7 +23,7 @@ assert_last_line_empty() {
 
     #append an empty line to the end of the file
     echo >> "${file}"
-    
+
 }
 
 main() {

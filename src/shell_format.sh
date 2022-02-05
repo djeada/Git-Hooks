@@ -2,9 +2,9 @@
 
 main() {
 
-  beautysh **/*.sh
-  shellcheck **/*.sh
-  
+    beautysh **/*.sh
+    shellcheck **/*.sh
+
 }
 
 main "$@"

@@ -4,10 +4,12 @@ import sys
 import pytest
 
 original_content = (
-    "This is a test file \n" "This is a test file      \n" "This is a test file  "
+    "1.This is a test file \n" "2.This is a test file      \n" "3.This is a test file "
 )
 
-expected_content = "This is a test file\n" "This is a test file\n" "This is a test file"
+expected_content = (
+    "1.This is a test file\n" "2.This is a test file\n" "3.This is a test file"
+)
 
 # test python script
 def test_remove_trailing_whitespaces(tmpdir):
@@ -33,5 +35,5 @@ def test_remove_trailing_whitespaces_bash(tmpdir):
 
     # run bash script
     # ../src/remove_trailing_whitespaces.sh test_remove_trailing_whitespaces.txt
-    subprocess.check_output(["../src/remove_trailing_whitespaces.sh", file_name])
-    assert file_name.read() == expected_content
+    subprocess.check_output(["src/remove_trailing_whitespaces.sh", file_name])
+    assert file_name.read() == expected_content + "\n"

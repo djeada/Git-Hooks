@@ -3,16 +3,18 @@
 remove_trailing_whitespaces() {
     local file="$1"
 
+    touch  "${file}".tmp
     echo "Checking each line of ${file} for trailing whitespaces..."
 
     while IFS= read -r line; do
-        if [[ $line == *[[:space:]]* ]]; then
+        echo $line
+        if [[ $line == *[[:space:]] ]]; then
             echo "Found trailing whitespaces in line: ${line}"
-            echo "${line}" | sed -e 's/[[:space:]]*$//'
+            echo "${line}" | sed 's/[ \t]*$//' >> "${file}".tmp
         else
-            echo "${line}"
+            echo "${line}"  >> "${file}".tmp
         fi
-    done < "${file}" > "${file}.tmp"
+    done < <(grep '' "${file}")
 
     mv "${file}.tmp" "${file}"
 

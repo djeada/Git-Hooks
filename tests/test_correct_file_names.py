@@ -36,7 +36,10 @@ def test_correct_file_name_bash(tmpdir):
     for file in temp_names_to_correct.keys():
         tmpdir.join(temp_dir, file).write(file)
     for file in tmpdir.join(temp_dir).listdir():
-        subprocess.run(["bash", "src/correct_file_names.sh", file.strpath])
+        result = subprocess.run(
+            ["bash", "src/correct_file_names.sh", f"{file.strpath}"]
+        )
+        print(result)
         new_file_name = temp_names_to_correct[file.basename]
         new_file = tmpdir.join(temp_dir, new_file_name)
         assert not file.exists()

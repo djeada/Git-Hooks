@@ -2,9 +2,9 @@
 
 main() {
 
-  black **/*.py
-  autopep8 **/*.py
-  
+    black **/*.py
+    autopep8 **/*.py
+
 }
 
 main "$@"
