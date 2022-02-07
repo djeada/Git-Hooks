@@ -13,13 +13,13 @@ main() {
         exit 1
     fi
 
-    if [ $1 == '.' ] || [ -d "${1}" ]; then
-        for file in $(find $1 -maxdepth 10 -type f)
+    if [ "$1" == '.' ] || [ -d "${1}" ]; then
+        for file in $(find "$1" -maxdepth 10 -type f)
         do
-            format $file
+            format "$file"
         done
     elif [ -f "${1}" ]; then
-        format $1
+        format "$1"
     else
         echo "$1 is not a valid path!"
     fi
