@@ -5,7 +5,8 @@ assert_last_line_empty() {
 
     echo "Checking if the last line of ${file} is empty..."
 
-    local last_line=$(tail -n 1 "${file}")
+    local last_line
+    last_line=$(tail -n 1 "${file}")
 
     if [ -z "${last_line}" ]; then
         echo "Last line is empty!"
@@ -37,12 +38,12 @@ main() {
     fi
 
     if [ "$1" == '.' ] || [ -d "${1}" ]; then
-        for file in $(find $1 -maxdepth 10 -type f)
+        for file in $(find "$1" -maxdepth 10 -type f)
         do
-            assert_last_line_empty $file
+            assert_last_line_empty "$file"
         done
     elif [ -f "${1}" ]; then
-        assert_last_line_empty $1
+        assert_last_line_empty "$1"
     else
         echo "$1 is not a valid path!"
     fi
@@ -50,4 +51,3 @@ main() {
 }
 
 main "$@"
-
