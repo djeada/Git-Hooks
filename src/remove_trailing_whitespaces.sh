@@ -31,12 +31,12 @@ main() {
     fi
 
     if [ "$1" == '.' ] || [ -d "${1}" ]; then
-        for file in $(find $1 -maxdepth 10 -type f)
+        for file in $(find "$1" -maxdepth 10 -type f)
         do
-            remove_trailing_whitespaces $file
+            remove_trailing_whitespaces "$file"
         done
     elif [ -f "${1}" ]; then
-        remove_trailing_whitespaces $1
+        remove_trailing_whitespaces "$1"
     else
         echo "$1 is not a valid path!"
     fi
@@ -44,4 +44,3 @@ main() {
 }
 
 main "$@"
-
