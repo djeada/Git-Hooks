@@ -2,7 +2,7 @@
 
 remove_diactrics ()
 {
-    sed -i 'y/ąāáǎàćēéěèęīíǐìłńōóǒòóśūúǔùǖǘǚǜżźĄĀÁǍÀĆĒĘÉĚÈĪÍǏÌŁŃŌÓǑÒÓŚŪÚǓÙǕǗǙǛŻŹ/aaaaaceeeeeiiiilnooooosuuuuüüüüzzAAAAACEEEEEIIIILNOOOOOSUUUUÜÜÜÜZZ/' $1
+    sed -i 'y/ąāáǎàćēéěèęīíǐìłńōóǒòóśūúǔùǖǘǚǜżźĄĀÁǍÀĆĒĘÉĚÈĪÍǏÌŁŃŌÓǑÒÓŚŪÚǓÙǕǗǙǛŻŹ/aaaaaceeeeeiiiilnooooosuuuuüüüüzzAAAAACEEEEEIIIILNOOOOOSUUUUÜÜÜÜZZ/' "$1"
 }
 
 main() {
@@ -12,13 +12,13 @@ main() {
         exit 1
     fi
 
-    if [ $1 == '.' ] || [ -d "${1}" ]; then
-        for file in $(find $1 -maxdepth 10 -type f)
+    if [ "$1" == '.' ] || [ -d "${1}" ]; then
+        for file in $(find "$1" -maxdepth 10 -type f)
         do
-            remove_diactrics $file
+            remove_diactrics "$file"
         done
     elif [ -f "${1}" ]; then
-        remove_diactrics $1
+        remove_diactrics "$1"
     else
         echo "$1 is not a valid path!"
     fi
@@ -26,4 +26,3 @@ main() {
 }
 
 main "$@"
-
