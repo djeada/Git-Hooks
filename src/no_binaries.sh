@@ -21,7 +21,7 @@ main() {
         exit 1
     fi
 
-    path = "$1"
+    path="$1"
     check_for_binaries "${path}"
 
     echo "No binaries found in ${path}!"
