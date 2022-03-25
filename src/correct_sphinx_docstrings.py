@@ -1,14 +1,17 @@
 import sys
-import pathlib
+from pathlib import Path
 from typing import List, Tuple
 
 
 def correct_sphinx_docstrings(file_name: str) -> bool:
     """
+    Corrects Sphinx docstrings in file_name.
+
+    :param file_name: name of file to correct
+    :return: True if file was changed, False otherwise
     """
     # read file contents
-    with open(file_name, "r", encoding="utf-8") as file:
-        contents = file.read()
+    contents = Path(file_name).read_text()
 
     next_docstring_pos = find_next_docstring(contents.split("\n"), 0)
     while next_docstring_pos != (-1, -1):
@@ -23,15 +26,21 @@ def correct_sphinx_docstrings(file_name: str) -> bool:
 
         next_docstring_pos = find_next_docstring(contents.split("\n"), start_pos + len(docstring) + 1)
 
+    flag = Path(file_name).read_text() != contents
+
     # write file contents
-    with open(file_name, "w", encoding="utf-8") as file:
-        file.write(contents)
+    Path(file_name).write_text(contents)
+
+    return flag
         
 
 def assert_single_whitespace_after_second_semicolon(docstring: List[str]) -> List[str]:
     """
     Find the lines conaining prefixes = [":param", ":return", ":raises"].
     For those lines make sure that there is only one whitespace after the second semicolon.
+
+    :param docstring: list of lines in docstring
+    :return: list of lines in docstring
     """
     prefixes = [":param", ":return", ":raises"]
     for i in range(len(docstring)):
@@ -47,7 +56,7 @@ def assert_single_whitespace_after_second_semicolon(docstring: List[str]) -> Lis
                         line_after_second_semicolon = line_after_second_semicolon[1:]
 
                     if len(line_after_second_semicolon) > 1:
-                        line_after_second_semicolon = " " + line_after_second_semicolon.capitalize()
+                        line_after_second_semicolon = " " + line_after_second_semicolon[0].upper() + line_after_second_semicolon[1:]
 
                     docstring[i] = line[:index_of_second_semicolon + 1] + line_after_second_semicolon
 
@@ -59,15 +68,24 @@ def assert_empty_line_between_description_and_param_list(docstring: List[str]) -
     make sure empty line between description and list of params
     find first param in docstring and check if there is description above it
     if so, make sure that there is empty line between description and param list
+    
+    :param docstring: list of lines in docstring
+    :return: list of lines in docstring
     """
-
+    prefixes = [":param", ":return", ":raises"]
     start_of_param_list = -1
 
     for i in range(len(docstring)):
         line = docstring[i].strip()
-        if line.startswith(":param") and i > 1:
-            start_of_param_list = i
+        # check if it starts with prefix
+        for prefix in prefixes:
+            if line.startswith(prefix) and i > 1:
+                start_of_param_list = i
+                break
+
+        if start_of_param_list != -1:
             break
+
 
     if start_of_param_list == -1:
         return docstring
@@ -86,6 +104,9 @@ def assert_no_unnecessary_prefixes(docstring: List[str]) -> List[str]:
     """
     Make sure that lines that contain :param or :return or :raises are prefixed with ": "
     and there are no unnecessary prefixes, only whitespace is allowed before the prefix
+
+    :param docstring: list of lines in docstring
+    :return: list of lines in docstring
     """
     prefixes = [":param", ":return", ":raises"]
     for i in range(len(docstring)):
@@ -104,6 +125,11 @@ def assert_no_unnecessary_prefixes(docstring: List[str]) -> List[str]:
 
 def find_next_docstring(contents: List[str], index: int) -> Tuple[int, int]:
     """
+    Finds next docstring in contents starting from index. Returns (-1, -1) if no docstring found.
+
+    :param contents: list of lines in file
+    :param index: index to start looking for docstring
+    :return: start and end position of docstring
     """
     possible_docstring_start = ["\"\"\"", "'''", "r\"\"\"", "r'''"]
     corresponding_docstring_end = {"\"\"\"": "\"\"\"", "'''": "'''", "r\"\"\"": "\"\"\"", "r'''": "'''"}
@@ -123,17 +149,17 @@ if __name__ == "__main__":
 
     # check if user provided file name
     if len(sys.argv) != 2:
-        print("Usage: python last_line_empty.py <dir_name>")
+        print("Usage: python correct_sphinx_docstrings.py <dir_name>")
         exit()
 
     # check if file exists
     file_name = sys.argv[1]
 
-    if not pathlib.Path(file_name).is_dir():
+    if not Path(file_name).is_dir():
         print("Dir does not exist")
         exit()
 
     # find all files in directory and make sure last line is empty
-    for file in pathlib.Path(file_name).glob("**/*"):
+    for file in Path(file_name).glob("**/*"):
         if file.is_file():
             correct_sphinx_docstrings(file)
