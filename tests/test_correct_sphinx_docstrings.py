@@ -1,6 +1,6 @@
 from src.correct_sphinx_docstrings import assert_empty_line_between_description_and_param_list, \
     assert_no_unnecessary_prefixes, assert_single_whitespace_after_second_semicolon, \
-    correct_sphinx_docstrings, find_next_docstring
+    correct_sphinx_docstrings, find_next_docstring, convert_to_third_person
 
 
 def test_assert_empty_line_between_description_and_param_list():
@@ -8,7 +8,7 @@ def test_assert_empty_line_between_description_and_param_list():
     docstring = ['   """', '    Description', '', '    :param param1: description of param1',
                  '    :param param2: description of param2', '    :return: description of return value', '    """']
     expected = docstring
-    result = assert_empty_line_between_description_and_param_list(docstring)
+    result = assert_empty_line_between_description_and_param_list(docstring.copy())
     assert result == expected
 
     # missing empty line between description and param list
@@ -155,3 +155,19 @@ def test_correct_sphinx_docstrings(tmpdir):
 
     for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
         assert line_result.strip() == line_expected.strip()
+
+
+def test_convert_to_third_person():
+    docstring = ['   """', '    Description', '', '    :param param1: description of param1',
+                 '    :param param2: description of param2', '    :return: description of return value', '    """']
+    expected = docstring
+    result = convert_to_third_person(docstring.copy())
+    assert result == expected
+
+
+    docstring = ['   """', '    use unlimited option', '', '    :param param1: description of param1',
+                 '    :param param2: description of param2', '    :return: description of return value', '    """']
+    expected = ['   """', '    uses unlimited option', '', '    :param param1: description of param1',
+                 '    :param param2: description of param2', '    :return: description of return value', '    """']
+    result = convert_to_third_person(docstring.copy())
+    assert result == expected

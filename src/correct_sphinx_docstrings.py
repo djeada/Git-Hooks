@@ -17,9 +17,10 @@ def correct_sphinx_docstrings(file_name: str) -> bool:
     while next_docstring_pos != (-1, -1):
         start_pos, end_pos = next_docstring_pos
         docstring = contents.split("\n")[start_pos:end_pos + 1]
-        docstring = assert_empty_line_between_description_and_param_list(docstring)
-        docstring = assert_no_unnecessary_prefixes(docstring)
-        docstring = assert_single_whitespace_after_second_semicolon(docstring)
+        docstring = assert_empty_line_between_description_and_param_list(docstring.copy())
+        docstring = assert_no_unnecessary_prefixes(docstring.copy())
+        docstring = assert_single_whitespace_after_second_semicolon(docstring.copy())
+        docstring = convert_to_third_person(docstring.copy())
         contents_list_of_lines = contents.split("\n")
         contents_list_of_lines = contents_list_of_lines[:start_pos] + docstring + contents_list_of_lines[end_pos + 1:]
         contents = "\n".join(contents_list_of_lines)
@@ -32,7 +33,7 @@ def correct_sphinx_docstrings(file_name: str) -> bool:
     Path(file_name).write_text(contents)
 
     return flag
-        
+
 
 def assert_single_whitespace_after_second_semicolon(docstring: List[str]) -> List[str]:
     """
@@ -56,7 +57,8 @@ def assert_single_whitespace_after_second_semicolon(docstring: List[str]) -> Lis
                         line_after_second_semicolon = line_after_second_semicolon[1:]
 
                     if len(line_after_second_semicolon) > 1:
-                        line_after_second_semicolon = " " + line_after_second_semicolon[0].upper() + line_after_second_semicolon[1:]
+                        line_after_second_semicolon = " " + line_after_second_semicolon[
+                            0].upper() + line_after_second_semicolon[1:]
 
                     docstring[i] = line[:index_of_second_semicolon + 1] + line_after_second_semicolon
 
@@ -85,7 +87,6 @@ def assert_empty_line_between_description_and_param_list(docstring: List[str]) -
 
         if start_of_param_list != -1:
             break
-
 
     if start_of_param_list == -1:
         return docstring
@@ -119,6 +120,74 @@ def assert_no_unnecessary_prefixes(docstring: List[str]) -> List[str]:
                 # replace all characters before prefix with whitespace
                 docstring[i] = " " * index + line[index:]
                 break
+
+    return docstring
+
+
+def convert_to_third_person(docstring: List[str]) -> List[str]:
+    """
+    Convert docstring to third person form
+
+    :param docstring: list of lines in docstring
+    :return: list of lines in docstring
+    """
+    # check which line starts with ":"
+    end_index = -1
+    for i in range(len(docstring)):
+        line = docstring[i].strip()
+        if line.startswith(":"):
+            end_index = i
+            break
+
+    if end_index == -1:
+        return docstring
+
+    def split_word_punctuation(word: str) -> Tuple[str, str]:
+        """
+        Split word into two parts: word and punctuation
+
+        :param word: word to split
+        :return: word and punctuation
+        """
+        letters = ''
+
+        end_index = -1
+        for i, letter in enumerate(word):
+            if not letter.isalpha():
+                end_index = i
+                break
+            letters += letter
+
+        punctuation = word[end_index:] if end_index != -1 else ''
+
+        return letters, punctuation
+
+    def is_verb(word: str) -> bool:
+        """
+        Check if word is a verb
+
+        :param word: word to check
+        :return: True if word is a verb, False otherwise
+        """
+        # open resources/verbs.txt
+        # each line in that file is a verb
+        # check if word is in that file
+
+        contents = Path("../resources/verbs.txt").read_text()
+        verbs = contents.split("\n")
+        return word.lower().strip() in verbs
+
+    for i in range(1, end_index):
+        line = docstring[i]
+        leading_whitespaces = len(line) - len(line.lstrip())
+        new_line = " " * leading_whitespaces
+        for word in line.split():
+            word, punctuation = split_word_punctuation(word)
+            if is_verb(word) and not word.endswith("s"):
+                word += "s"
+            new_line += word + punctuation + " "
+
+        docstring[i] = new_line.rstrip()
 
     return docstring
 
