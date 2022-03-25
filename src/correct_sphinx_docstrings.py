@@ -173,7 +173,7 @@ def convert_to_third_person(docstring: List[str]) -> List[str]:
         # each line in that file is a verb
         # check if word is in that file
 
-        contents = Path("../resources/verbs.txt").read_text()
+        contents = Path("resources/verbs.txt").read_text()
         verbs = contents.split("\n")
         return word.lower().strip() in verbs
 
