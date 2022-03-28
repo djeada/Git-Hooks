@@ -585,6 +585,7 @@ overflow
 overhear
 overtake
 overthrow
+overwrite
 owe
 own
 pack
