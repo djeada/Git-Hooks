@@ -2,6 +2,13 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+'''
+TODO:
+- change verbs only if previous word is not 'to'
+- print a message when line is being changed
+- change resources path to relative to script file
+'''
+
 
 def correct_sphinx_docstrings(file_name: str) -> bool:
     """
