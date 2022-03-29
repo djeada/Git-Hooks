@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 '''
 TODO:
-- change verbs only if previous word is not 'to'
+- change verbs only if previous word is not 'to' or 'a'
 - print a message when line is being changed
 - change resources path to relative to script file
 '''
