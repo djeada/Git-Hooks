@@ -7,6 +7,7 @@ TODO:
 - change verbs only if previous word is not 'to' or 'a'
 - print a message when line is being changed
 - change resources path to relative to script file
+- make sure that : is last char in :param param_name:
 '''
 
 
