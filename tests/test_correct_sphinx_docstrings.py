@@ -1,6 +1,6 @@
 from src.correct_sphinx_docstrings import assert_empty_line_between_description_and_param_list, \
     assert_no_unnecessary_prefixes, assert_single_whitespace_after_second_semicolon, \
-    correct_sphinx_docstrings, find_next_docstring, convert_to_third_person
+    correct_sphinx_docstrings, find_next_docstring, convert_to_third_person, add_missing_docstring
 
 
 def test_assert_empty_line_between_description_and_param_list():
@@ -164,10 +164,63 @@ def test_convert_to_third_person():
     result = convert_to_third_person(docstring.copy())
     assert result == expected
 
-
     docstring = ['   """', '    use unlimited option', '', '    :param param1: description of param1',
                  '    :param param2: description of param2', '    :return: description of return value', '    """']
     expected = ['   """', '    uses unlimited option', '', '    :param param1: description of param1',
-                 '    :param param2: description of param2', '    :return: description of return value', '    """']
+                '    :param param2: description of param2', '    :return: description of return value', '    """']
     result = convert_to_third_person(docstring.copy())
     assert result == expected
+
+
+def test_add_missing_docstring():
+    file_content = '''
+    import os
+    import sys
+
+    def some_function(param_a, param_b):
+        return param_a + param_b
+    
+    def some_other_function(param_a, param_b, param_c):
+        return param_a + param_b + param_c
+
+    if __name__ == '__main__':
+        some_function(1, 2)
+        some_other_function(1, 2, 3)
+    '''
+
+    expected = '''
+    import os
+    import sys
+
+    def some_function(param_a, param_b):
+        """
+        Description of function
+        
+        :param param_a:
+        :param param_b:
+        :return:
+        """
+        return param_a + param_b
+    
+    def some_other_function(param_a, param_b, param_c):
+        """
+        Description of function
+        
+        :param param_a:
+        :param param_b:
+        :param param_c:
+        :return:
+        """
+        return param_a + param_b + param_c
+
+    if __name__ == '__main__':
+        some_function(1, 2)
+        some_other_function(1, 2, 3)
+    '''
+
+    content_as_list = file_content.split('\n')
+    content_as_list = add_missing_docstring(content_as_list.copy())
+
+    result = "\n".join(content_as_list)
+    for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
+        assert line_result.strip() == line_expected.strip()

@@ -1,12 +1,11 @@
+import re
 import sys
 from pathlib import Path
 from typing import List, Tuple
 
 '''
 TODO:
-- change verbs only if previous word is not 'to' or 'a'
 - print a message when line is being changed
-- change resources path to relative to script file
 - make sure that : is last char in :param param_name:
 '''
 
@@ -20,6 +19,9 @@ def correct_sphinx_docstrings(file_name: str) -> bool:
     """
     # read file contents
     contents = Path(file_name).read_text()
+
+    content_as_list = add_missing_docstring(contents.split('\n').copy())
+    contents = "\n".join(content_as_list)
 
     next_docstring_pos = find_next_docstring(contents.split("\n"), 0)
     while next_docstring_pos != (-1, -1):
@@ -181,19 +183,36 @@ def convert_to_third_person(docstring: List[str]) -> List[str]:
         # each line in that file is a verb
         # check if word is in that file
 
-        contents = Path("resources/verbs.txt").read_text()
+        contents = Path(__file__).parent.joinpath("../resources/verbs.txt").read_text()
+
         verbs = contents.split("\n")
         return word.lower().strip() in verbs
+
+    blocking_previous_words = ['to', 'a', 'an', 'the', 'for', 'in', 'of', 'and', 'or',
+                               'as', 'if', 'but', 'nor', 'so', 'yet', 'at', 'by', 'from', 'into', 'like', 'over',
+                               'after', 'before', 'between', 'into', 'through', 'with', 'without', 'during', 'without',
+                               'until', 'up', 'upon', 'about', 'above', 'across', 'after', 'against', 'along', 'amid',
+                               'among', 'anti', 'around', 'as', 'at', 'before', 'behind', 'below', 'beneath', 'beside',
+                               'besides', 'between', 'beyond', 'concerning', 'considering', 'despite', 'down',
+                               'during', 'except', 'excepting', 'excluding', 'following', 'for', 'from',
+                               'in', 'inside', 'into', 'like', 'minus', 'near', 'of', 'off', 'on', 'onto',
+                               'opposite', 'outside', 'over', 'past', 'per', 'plus', 'regarding', 'round',
+                               'save', 'since', 'than', 'through', 'to', 'toward', 'towards', 'under',
+                               'underneath', 'unlike', 'until', 'up', 'upon', 'versus', 'via', 'with', 'within',
+                               'without']
 
     for i in range(1, end_index):
         line = docstring[i]
         leading_whitespaces = len(line) - len(line.lstrip())
         new_line = " " * leading_whitespaces
+        previous_word = ""
         for word in line.split():
             word, punctuation = split_word_punctuation(word)
-            if is_verb(word) and not word.endswith("s"):
-                word += "s"
+            if previous_word not in blocking_previous_words:
+                if is_verb(word) and not word.endswith("s"):
+                    word += "s"
             new_line += word + punctuation + " "
+            previous_word = word
 
         docstring[i] = new_line.rstrip()
 
@@ -220,6 +239,40 @@ def find_next_docstring(contents: List[str], index: int) -> Tuple[int, int]:
                     return i, j
 
     return -1, -1
+
+
+def add_missing_docstring(contents: List[str]) -> List[str]:
+    """
+    Add docstring to file.
+
+    :param contents: list of lines in file
+    :return: list of lines in file
+    """
+
+    possible_docstring_start = ["\"\"\"", "'''", "r\"\"\"", "r'''"]
+
+    i = 0
+    while i < len(contents) - 1:
+        line = contents[i].strip()
+        indentation = len(contents[i]) - len(contents[i].lstrip())
+        if line.startswith("def"):
+            if contents[i + 1].strip() not in possible_docstring_start:
+                # find the parameters of the function between ()
+                parameters = re.findall(r"\((.*?)\)", line)
+                # add docstring
+                contents.insert(i + 1, f'{" " * indentation}\"\"\"')
+                contents.insert(i + 2, f'{" " * indentation}Description of function \n')
+                # add parameters
+                i += 3
+                for parameter in parameters[0].split(","):
+                    contents.insert(i, f'{" " * indentation}:param {parameter.strip()}:')
+                    i += 1
+                # add return
+                contents.insert(i, f'{" " * indentation}:return:')
+                contents.insert(i + 1, f'{" " * indentation}\"\"\"')
+        i += 1
+
+    return contents
 
 
 if __name__ == "__main__":
