@@ -3,11 +3,11 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
-'''
+"""
 TODO:
 - print a message when line is being changed
 - make sure that : is last char in :param param_name:
-'''
+"""
 
 
 def correct_sphinx_docstrings(file_name: str) -> bool:
@@ -20,22 +20,30 @@ def correct_sphinx_docstrings(file_name: str) -> bool:
     # read file contents
     contents = Path(file_name).read_text()
 
-    content_as_list = add_missing_docstring(contents.split('\n').copy())
+    content_as_list = add_missing_docstring(contents.split("\n").copy())
     contents = "\n".join(content_as_list)
 
     next_docstring_pos = find_next_docstring(contents.split("\n"), 0)
     while next_docstring_pos != (-1, -1):
         start_pos, end_pos = next_docstring_pos
-        docstring = contents.split("\n")[start_pos:end_pos + 1]
-        docstring = assert_empty_line_between_description_and_param_list(docstring.copy())
+        docstring = contents.split("\n")[start_pos : end_pos + 1]
+        docstring = assert_empty_line_between_description_and_param_list(
+            docstring.copy()
+        )
         docstring = assert_no_unnecessary_prefixes(docstring.copy())
         docstring = assert_single_whitespace_after_second_semicolon(docstring.copy())
         docstring = convert_to_third_person(docstring.copy())
         contents_list_of_lines = contents.split("\n")
-        contents_list_of_lines = contents_list_of_lines[:start_pos] + docstring + contents_list_of_lines[end_pos + 1:]
+        contents_list_of_lines = (
+            contents_list_of_lines[:start_pos]
+            + docstring
+            + contents_list_of_lines[end_pos + 1 :]
+        )
         contents = "\n".join(contents_list_of_lines)
 
-        next_docstring_pos = find_next_docstring(contents.split("\n"), start_pos + len(docstring) + 1)
+        next_docstring_pos = find_next_docstring(
+            contents.split("\n"), start_pos + len(docstring) + 1
+        )
 
     flag = Path(file_name).read_text() != contents
 
@@ -61,21 +69,29 @@ def assert_single_whitespace_after_second_semicolon(docstring: List[str]) -> Lis
             if index != -1:
                 index_of_second_semicolon = line.find(":", index + len(prefix))
                 if index_of_second_semicolon != -1:
-                    line_after_second_semicolon = line[index_of_second_semicolon + 1:]
+                    line_after_second_semicolon = line[index_of_second_semicolon + 1 :]
 
                     while line_after_second_semicolon.startswith(" "):
                         line_after_second_semicolon = line_after_second_semicolon[1:]
 
                     if len(line_after_second_semicolon) > 1:
-                        line_after_second_semicolon = " " + line_after_second_semicolon[
-                            0].upper() + line_after_second_semicolon[1:]
+                        line_after_second_semicolon = (
+                            " "
+                            + line_after_second_semicolon[0].upper()
+                            + line_after_second_semicolon[1:]
+                        )
 
-                    docstring[i] = line[:index_of_second_semicolon + 1] + line_after_second_semicolon
+                    docstring[i] = (
+                        line[: index_of_second_semicolon + 1]
+                        + line_after_second_semicolon
+                    )
 
     return docstring
 
 
-def assert_empty_line_between_description_and_param_list(docstring: List[str]) -> List[str]:
+def assert_empty_line_between_description_and_param_list(
+    docstring: List[str]
+) -> List[str]:
     """
     make sure empty line between description and list of params
     find first param in docstring and check if there is description above it
@@ -159,7 +175,7 @@ def convert_to_third_person(docstring: List[str]) -> List[str]:
         :param word: word to split
         :return: word and punctuation
         """
-        letters = ''
+        letters = ""
 
         end_index = -1
         for i, letter in enumerate(word):
@@ -168,7 +184,7 @@ def convert_to_third_person(docstring: List[str]) -> List[str]:
                 break
             letters += letter
 
-        punctuation = word[end_index:] if end_index != -1 else ''
+        punctuation = word[end_index:] if end_index != -1 else ""
 
         return letters, punctuation
 
@@ -188,18 +204,108 @@ def convert_to_third_person(docstring: List[str]) -> List[str]:
         verbs = contents.split("\n")
         return word.lower().strip() in verbs
 
-    blocking_previous_words = ['to', 'a', 'an', 'the', 'for', 'in', 'of', 'and', 'or',
-                               'as', 'if', 'but', 'nor', 'so', 'yet', 'at', 'by', 'from', 'into', 'like', 'over',
-                               'after', 'before', 'between', 'into', 'through', 'with', 'without', 'during', 'without',
-                               'until', 'up', 'upon', 'about', 'above', 'across', 'after', 'against', 'along', 'amid',
-                               'among', 'anti', 'around', 'as', 'at', 'before', 'behind', 'below', 'beneath', 'beside',
-                               'besides', 'between', 'beyond', 'concerning', 'considering', 'despite', 'down',
-                               'during', 'except', 'excepting', 'excluding', 'following', 'for', 'from',
-                               'in', 'inside', 'into', 'like', 'minus', 'near', 'of', 'off', 'on', 'onto',
-                               'opposite', 'outside', 'over', 'past', 'per', 'plus', 'regarding', 'round',
-                               'save', 'since', 'than', 'through', 'to', 'toward', 'towards', 'under',
-                               'underneath', 'unlike', 'until', 'up', 'upon', 'versus', 'via', 'with', 'within',
-                               'without']
+    blocking_previous_words = [
+        "to",
+        "a",
+        "an",
+        "the",
+        "for",
+        "in",
+        "of",
+        "and",
+        "or",
+        "as",
+        "if",
+        "but",
+        "nor",
+        "so",
+        "yet",
+        "at",
+        "by",
+        "from",
+        "into",
+        "like",
+        "over",
+        "after",
+        "before",
+        "between",
+        "into",
+        "through",
+        "with",
+        "without",
+        "during",
+        "without",
+        "until",
+        "up",
+        "upon",
+        "about",
+        "above",
+        "across",
+        "after",
+        "against",
+        "along",
+        "amid",
+        "among",
+        "anti",
+        "around",
+        "as",
+        "at",
+        "before",
+        "behind",
+        "below",
+        "beneath",
+        "beside",
+        "besides",
+        "between",
+        "beyond",
+        "concerning",
+        "considering",
+        "despite",
+        "down",
+        "during",
+        "except",
+        "excepting",
+        "excluding",
+        "following",
+        "for",
+        "from",
+        "in",
+        "inside",
+        "into",
+        "like",
+        "minus",
+        "near",
+        "of",
+        "off",
+        "on",
+        "onto",
+        "opposite",
+        "outside",
+        "over",
+        "past",
+        "per",
+        "plus",
+        "regarding",
+        "round",
+        "save",
+        "since",
+        "than",
+        "through",
+        "to",
+        "toward",
+        "towards",
+        "under",
+        "underneath",
+        "unlike",
+        "until",
+        "up",
+        "upon",
+        "versus",
+        "via",
+        "with",
+        "within",
+        "without",
+    ]
 
     for i in range(1, end_index):
         line = docstring[i]
@@ -227,8 +333,13 @@ def find_next_docstring(contents: List[str], index: int) -> Tuple[int, int]:
     :param index: index to start looking for docstring
     :return: start and end position of docstring
     """
-    possible_docstring_start = ["\"\"\"", "'''", "r\"\"\"", "r'''"]
-    corresponding_docstring_end = {"\"\"\"": "\"\"\"", "'''": "'''", "r\"\"\"": "\"\"\"", "r'''": "'''"}
+    possible_docstring_start = ['"""', "'''", 'r"""', "r'''"]
+    corresponding_docstring_end = {
+        '"""': '"""',
+        "'''": "'''",
+        'r"""': '"""',
+        "r'''": "'''",
+    }
 
     for i in range(index, len(contents)):
         line = contents[i].strip()
@@ -249,7 +360,7 @@ def add_missing_docstring(contents: List[str]) -> List[str]:
     :return: list of lines in file
     """
 
-    possible_docstring_start = ["\"\"\"", "'''", "r\"\"\"", "r'''"]
+    possible_docstring_start = ['"""', "'''", 'r"""', "r'''"]
 
     i = 0
     while i < len(contents) - 1:
@@ -260,16 +371,18 @@ def add_missing_docstring(contents: List[str]) -> List[str]:
                 # find the parameters of the function between ()
                 parameters = re.findall(r"\((.*?)\)", line)
                 # add docstring
-                contents.insert(i + 1, f'{" " * indentation}\"\"\"')
+                contents.insert(i + 1, f'{" " * indentation}"""')
                 contents.insert(i + 2, f'{" " * indentation}Description of function \n')
                 # add parameters
                 i += 3
                 for parameter in parameters[0].split(","):
-                    contents.insert(i, f'{" " * indentation}:param {parameter.strip()}:')
+                    contents.insert(
+                        i, f'{" " * indentation}:param {parameter.strip()}:'
+                    )
                     i += 1
                 # add return
                 contents.insert(i, f'{" " * indentation}:return:')
-                contents.insert(i + 1, f'{" " * indentation}\"\"\"')
+                contents.insert(i + 1, f'{" " * indentation}"""')
         i += 1
 
     return contents

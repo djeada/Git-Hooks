@@ -1,48 +1,118 @@
-from src.correct_sphinx_docstrings import assert_empty_line_between_description_and_param_list, \
-    assert_no_unnecessary_prefixes, assert_single_whitespace_after_second_semicolon, \
-    correct_sphinx_docstrings, find_next_docstring, convert_to_third_person, add_missing_docstring
+from src.correct_sphinx_docstrings import (
+    assert_empty_line_between_description_and_param_list,
+    assert_no_unnecessary_prefixes,
+    assert_single_whitespace_after_second_semicolon,
+    correct_sphinx_docstrings,
+    find_next_docstring,
+    convert_to_third_person,
+    add_missing_docstring,
+)
 
 
 def test_assert_empty_line_between_description_and_param_list():
     # correct docstring: function shouldn't change anything
-    docstring = ['   """', '    Description', '', '    :param param1: description of param1',
-                 '    :param param2: description of param2', '    :return: description of return value', '    """']
+    docstring = [
+        '   """',
+        "    Description",
+        "",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
     expected = docstring
     result = assert_empty_line_between_description_and_param_list(docstring.copy())
     assert result == expected
 
     # missing empty line between description and param list
-    docstring = ['   """', '    Description', '    :param param1: description of param1',
-                 '    :param param2: description of param2', '    :return: description of return value', '    """']
-    expected = ['   """', '    Description', '', '    :param param1: description of param1',
-                '    :param param2: description of param2', '    :return: description of return value', '    """']
+    docstring = [
+        '   """',
+        "    Description",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
+    expected = [
+        '   """',
+        "    Description",
+        "",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
     result = assert_empty_line_between_description_and_param_list(docstring)
     assert result == expected
 
     # multiple empty lines between description and param list
-    docstring = ['   """', '    Description', '', '', '', '    :param param1: description of param1',
-                 '    :param param2: description of param2', '    :return: description of return value', '    """']
-    expected = ['   """', '    Description', '', '    :param param1: description of param1',
-                '    :param param2: description of param2', '    :return: description of return value', '    """']
+    docstring = [
+        '   """',
+        "    Description",
+        "",
+        "",
+        "",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
+    expected = [
+        '   """',
+        "    Description",
+        "",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
     result = assert_empty_line_between_description_and_param_list(docstring)
     assert result == expected
 
 
 def test_assert_no_unnecessary_prefixes():
-    docstring = ['   """', '    Description', '', ' ., :param param1: description of param1',
-                 '    :param param2: description of param2', '    :return: description of return value', '    """']
-    expected = ['   """', '    Description', '', '    :param param1: description of param1',
-                '    :param param2: description of param2', '    :return: description of return value', '    """']
+    docstring = [
+        '   """',
+        "    Description",
+        "",
+        " ., :param param1: description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
+    expected = [
+        '   """',
+        "    Description",
+        "",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
 
     result = assert_no_unnecessary_prefixes(docstring)
     assert result == expected
 
 
 def test_assert_single_whitespace_after_second_semicolon():
-    docstring = ['   """', '    Description', '', '    :param param1:   description of param1',
-                 '    :param param2: description of param2', '    :return: description of return value', '    """']
-    expected = ['   """', '    Description', '', '    :param param1: Description of param1',
-                '    :param param2: Description of param2', '    :return: Description of return value', '    """']
+    docstring = [
+        '   """',
+        "    Description",
+        "",
+        "    :param param1:   description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
+    expected = [
+        '   """',
+        "    Description",
+        "",
+        "    :param param1: Description of param1",
+        "    :param param2: Description of param2",
+        "    :return: Description of return value",
+        '    """',
+    ]
 
     result = assert_single_whitespace_after_second_semicolon(docstring)
     assert result == expected
@@ -145,12 +215,12 @@ def test_correct_sphinx_docstrings(tmpdir):
 
     '''
 
-    file_path = tmpdir.join('test.py')
+    file_path = tmpdir.join("test.py")
     file_path.write(file_content)
 
     correct_sphinx_docstrings(file_path.strpath)
 
-    with open(file_path.strpath, 'r') as f:
+    with open(file_path.strpath, "r") as f:
         result = f.read()
 
     for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
@@ -158,22 +228,43 @@ def test_correct_sphinx_docstrings(tmpdir):
 
 
 def test_convert_to_third_person():
-    docstring = ['   """', '    Description', '', '    :param param1: description of param1',
-                 '    :param param2: description of param2', '    :return: description of return value', '    """']
+    docstring = [
+        '   """',
+        "    Description",
+        "",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
     expected = docstring
     result = convert_to_third_person(docstring.copy())
     assert result == expected
 
-    docstring = ['   """', '    use unlimited option', '', '    :param param1: description of param1',
-                 '    :param param2: description of param2', '    :return: description of return value', '    """']
-    expected = ['   """', '    uses unlimited option', '', '    :param param1: description of param1',
-                '    :param param2: description of param2', '    :return: description of return value', '    """']
+    docstring = [
+        '   """',
+        "    use unlimited option",
+        "",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
+    expected = [
+        '   """',
+        "    uses unlimited option",
+        "",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2",
+        "    :return: description of return value",
+        '    """',
+    ]
     result = convert_to_third_person(docstring.copy())
     assert result == expected
 
 
 def test_add_missing_docstring():
-    file_content = '''
+    file_content = """
     import os
     import sys
 
@@ -186,7 +277,7 @@ def test_add_missing_docstring():
     if __name__ == '__main__':
         some_function(1, 2)
         some_other_function(1, 2, 3)
-    '''
+    """
 
     expected = '''
     import os
@@ -218,7 +309,7 @@ def test_add_missing_docstring():
         some_other_function(1, 2, 3)
     '''
 
-    content_as_list = file_content.split('\n')
+    content_as_list = file_content.split("\n")
     content_as_list = add_missing_docstring(content_as_list.copy())
 
     result = "\n".join(content_as_list)
