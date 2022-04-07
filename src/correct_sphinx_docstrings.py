@@ -368,22 +368,32 @@ def add_missing_docstring(contents: List[str]) -> List[str]:
         line = contents[i].strip()
         indentation = len(contents[i]) - len(contents[i].lstrip())
         if line.startswith("def"):
-            if contents[i + 1].strip() not in possible_docstring_start:
+            end_index = i
+            while not line.endswith(":"):
+                end_index += 1
+                line = contents[end_index].strip()
+
+            if contents[end_index+ 1].strip() not in possible_docstring_start:
                 # find the parameters of the function between ()
-                parameters = re.findall(r"\((.*?)\)", line)
+
+                parameters_text = "".join(contents[i:end_index+1]).replace('\n', ' ')
+                parameters_text = parameters_text[parameters_text.find("(") + 1 : parameters_text.rfind(")")]
+                parameters = [param.strip() for param in parameters_text.split(",")]
+                                
                 # add docstring
-                contents.insert(i + 1, f'{" " * indentation}"""')
-                contents.insert(i + 2, f'{" " * indentation}Description of function \n')
+                contents.insert(end_index + 1, f'{" " * indentation}"""')
+                contents.insert(end_index + 2, f'{" " * indentation}Description of function \n')
                 # add parameters
-                i += 3
-                for parameter in parameters[0].split(","):
+                end_index += 3
+                for parameter in parameters:
+                    parameter = parameter.split(':')[0]
                     contents.insert(
-                        i, f'{" " * indentation}:param {parameter.strip()}:'
+                        end_index, f'{" " * indentation}:param {parameter.strip()}:'
                     )
-                    i += 1
+                    end_index += 1
                 # add return
-                contents.insert(i, f'{" " * indentation}:return:')
-                contents.insert(i + 1, f'{" " * indentation}"""')
+                contents.insert(end_index, f'{" " * indentation}:return:')
+                contents.insert(end_index + 1, f'{" " * indentation}"""')
         i += 1
 
     return contents
@@ -400,13 +410,20 @@ def assert_optional_type_hints(contents: List[str]) -> List[str]:
     i = 0
     while i < len(contents) - 1:
         line = contents[i].strip()
+
         if line.startswith("def"):
-            # find the parameters of the function between ()
-            parameters = re.findall(r"\((.*?)\)", line)
+            end_index = i
+            while not line.endswith(":"):
+                end_index += 1
+                line = contents[end_index].strip()
+
+            parameters_text = "".join(contents[i:end_index+1]).replace('\n', ' ')
+            parameters_text = parameters_text[parameters_text.find("(") + 1 : parameters_text.rfind(")")]
+            parameters = [param.strip() for param in parameters_text.split(",")]
             # find the parameters with default value None
             parameters_with_default_value_none = [
                 parameter
-                for parameter in parameters[0].split(",")
+                for parameter in parameters
                 if "= None" in parameter
             ]
             # add Optional[type] to parameters with default value None
@@ -414,9 +431,10 @@ def assert_optional_type_hints(contents: List[str]) -> List[str]:
                 parameter_name = parameter.split(":")[0].strip()
                 parameter_type = parameter.split(":")[1].strip()
                 parameter_type = parameter_type.replace("= None", "").rstrip()
-                contents[i] = contents[i].replace(
-                    parameter, f" {parameter_name}: Optional[{parameter_type}] = None"
-                )
+                for j in range(i, end_index + 1):
+                    contents[j] = contents[j].replace(
+                        parameter, f"{parameter_name}: Optional[{parameter_type}] = None"
+                    )
 
         i += 1
 

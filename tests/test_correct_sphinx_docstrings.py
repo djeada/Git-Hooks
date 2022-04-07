@@ -269,10 +269,14 @@ def test_add_missing_docstring():
     import os
     import sys
 
-    def some_function(param_a, param_b):
+    def some_function(param_a: int, param_b: str = "default"):
         return param_a + param_b
     
-    def some_other_function(param_a, param_b, param_c):
+    def some_other_function(
+                            param_a, 
+                            param_b, 
+                            param_c
+                            ):
         return param_a + param_b + param_c
 
     if __name__ == '__main__':
@@ -284,7 +288,7 @@ def test_add_missing_docstring():
     import os
     import sys
 
-    def some_function(param_a, param_b):
+    def some_function(param_a: int, param_b: str = "default"):
         """
         Description of function
         
@@ -294,7 +298,11 @@ def test_add_missing_docstring():
         """
         return param_a + param_b
     
-    def some_other_function(param_a, param_b, param_c):
+    def some_other_function(
+                            param_a, 
+                            param_b, 
+                            param_c
+                            ):
         """
         Description of function
         
@@ -326,7 +334,11 @@ def test_assert_optional_type_hints():
     def some_function(param_a: int, param_b: str = None):
         return param_a + param_b
 
-    def some_other_function(param_a: int, param_b: str = None, param_c: int = None):
+    def some_other_function(
+                            param_a: int, 
+                            param_b: str = None, 
+                            param_c: int = None
+                            ):
         return param_a + param_b + param_c
     
     if __name__ == '__main__':
@@ -341,7 +353,11 @@ def test_assert_optional_type_hints():
     def some_function(param_a: int, param_b: Optional[str] = None):
         return param_a + param_b
     
-    def some_other_function(param_a: int, param_b: Optional[str] = None, param_c: Optional[int] = None):
+    def some_other_function(
+                            param_a: int, 
+                            param_b: Optional[str] = None, 
+                            param_c: Optional[int] = None
+                            ):
         return param_a + param_b + param_c
 
     if __name__ == '__main__':
