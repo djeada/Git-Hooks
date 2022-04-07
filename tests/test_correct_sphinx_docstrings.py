@@ -5,7 +5,8 @@ from src.correct_sphinx_docstrings import (
     correct_sphinx_docstrings,
     find_next_docstring,
     convert_to_third_person,
-    add_missing_docstring, assert_optional_type_hints,
+    add_missing_docstring,
+    assert_optional_type_hints,
 )
 
 
@@ -318,7 +319,7 @@ def test_add_missing_docstring():
 
 
 def test_assert_optional_type_hints():
-    file_content = '''
+    file_content = """
     import os
     import sys
 
@@ -331,9 +332,9 @@ def test_assert_optional_type_hints():
     if __name__ == '__main__':
         some_function(1, 2)
         some_other_function(1, 2, 3)
-     '''
+     """
 
-    expected = '''
+    expected = """
     import os
     import sys
 
@@ -346,7 +347,7 @@ def test_assert_optional_type_hints():
     if __name__ == '__main__':
         some_function(1, 2)
         some_other_function(1, 2, 3)
-    '''
+    """
 
     content_as_list = file_content.split("\n")
     content_as_list = assert_optional_type_hints(content_as_list.copy())
