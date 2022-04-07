@@ -11,76 +11,82 @@ def remove_diacritics(file_name: str) -> None:
 
     # replace each character from aaaaaceeeeeiiiilnooooosuuuuüüüüzzAAAAACEEEEEIIIILNOOOOOSUUUUÜÜÜÜZZ
     # with a respective character from aaaaaceeeeeiiiilnooooosuuuuüüüüzzAAAAACEEEEEIIIILNOOOOOSUUUUÜÜÜÜZZ
-    contents = contents.replace("ą", "a")
-    contents = contents.replace("ā", "a")
-    contents = contents.replace("á", "a")
-    contents = contents.replace("ǎ", "a")
-    contents = contents.replace("à", "aa")
-    contents = contents.replace("ć", "c")
-    contents = contents.replace("č", "c")
-    contents = contents.replace("ĉ", "c")
-    contents = contents.replace("ċ", "c")
-    contents = contents.replace("ę", "e")
-    contents = contents.replace("ē", "e")
-    contents = contents.replace("ė", "e")
-    contents = contents.replace("ě", "e")
-    contents = contents.replace("ī", "i")
-    contents = contents.replace("į", "i")
-    contents = contents.replace("ĩ", "i")
-    contents = contents.replace("ĭ", "i")
-    contents = contents.replace("ł", "l")
-    contents = contents.replace("ń", "n")
-    contents = contents.replace("ň", "n")
-    contents = contents.replace("ņ", "n")
-    contents = contents.replace("ō", "o")
-    contents = contents.replace("ŏ", "o")
-    contents = contents.replace("ó", "o")
-    contents = contents.replace("ő", "o")
-    contents = contents.replace("ś", "s")
-    contents = contents.replace("ŝ", "s")
-    contents = contents.replace("š", "s")
-    contents = contents.replace("ŭ", "u")
-    contents = contents.replace("ų", "u")
-    contents = contents.replace("ű", "u")
-    contents = contents.replace("ũ", "u")
-    contents = contents.replace("ů", "u")
-    contents = contents.replace("ź", "z")
-    contents = contents.replace("ż", "z")
-    contents = contents.replace("Ą", "A")
-    contents = contents.replace("Ā", "A")
-    contents = contents.replace("Á", "A")
-    contents = contents.replace("Ǎ", "A")
-    contents = contents.replace("À", "A")
-    contents = contents.replace("Ć", "C")
-    contents = contents.replace("Č", "C")
-    contents = contents.replace("Ĉ", "C")
-    contents = contents.replace("Ċ", "C")
-    contents = contents.replace("Ę", "E")
-    contents = contents.replace("Ē", "E")
-    contents = contents.replace("Ė", "E")
-    contents = contents.replace("Ě", "E")
-    contents = contents.replace("Ī", "I")
-    contents = contents.replace("Į", "I")
-    contents = contents.replace("Ĩ", "I")
-    contents = contents.replace("Ĭ", "I")
-    contents = contents.replace("Ł", "L")
-    contents = contents.replace("Ń", "N")
-    contents = contents.replace("Ň", "N")
-    contents = contents.replace("Ņ", "N")
-    contents = contents.replace("Ō", "O")
-    contents = contents.replace("Ŏ", "O")
-    contents = contents.replace("Ó", "O")
-    contents = contents.replace("Ő", "O")
-    contents = contents.replace("Ś", "S")
-    contents = contents.replace("Ŝ", "S")
-    contents = contents.replace("Š", "S")
-    contents = contents.replace("Ŭ", "U")
-    contents = contents.replace("Ų", "U")
-    contents = contents.replace("Ű", "U")
-    contents = contents.replace("Ũ", "U")
-    contents = contents.replace("Ů", "U")
-    contents = contents.replace("Ź", "Z")
-    contents = contents.replace("Ż", "Z")
+
+    mapping = {
+    "ą": "a",
+    "ā": "a",
+    "á": "a",
+    "ǎ": "a",
+    "à": "a",
+    "ć": "c",
+    "č": "c",
+    "ĉ": "c",
+    "ċ": "c",
+    "ę": "e",
+    "ē": "e",
+    "ė": "e",
+    "ě": "e",
+    "ī": "i",
+    "į": "i",
+    "ĩ": "i",
+    "ĭ": "i",
+    "ł": "l",
+    "ń": "n",
+    "ň": "n",
+    "ņ": "n",
+    "ō": "o",
+    "ŏ": "o",
+    "ó": "o",
+    "ő": "o",
+    "ś": "s",
+    "ŝ": "s",
+    "š": "s",
+    "ŭ": "u",
+    "ų": "u",
+    "ű": "u",
+    "ũ": "u",
+    "ů": "u",
+    "ź": "z",
+    "ż": "z",
+    "Ą": "A",
+    "Ā": "A",
+    "Á": "A",
+    "Ǎ": "A",
+    "À": "A",
+    "Ć": "C",
+    "Č": "C",
+    "Ĉ": "C",
+    "Ċ": "C",
+    "Ę": "E",
+    "Ē": "E",
+    "Ė": "E",
+    "Ě": "E",
+    "Ī": "I",
+    "Į": "I",
+    "Ĩ": "I",
+    "Ĭ": "I",
+    "Ł": "L",
+    "Ń": "N",
+    "Ň": "N",
+    "Ņ": "N",
+    "Ō": "O",
+    "Ŏ": "O",
+    "Ó": "O",
+    "Ő": "O",
+    "Ś": "S",
+    "Ŝ": "S",
+    "Š": "S",
+    "Ŭ": "U",
+    "Ų": "U",
+    "Ű": "U",
+    "Ũ": "U",
+    "Ů": "U",
+    "Ź": "Z",
+    "Ż": "Z",
+    }
+
+    for old_value, new_value in mapping.items():
+        contents = contents.replace(old_value, new_value)
 
     # write file contents
     with open(file_name, "wb") as file:
