@@ -403,15 +403,13 @@ def assert_optional_type_hints(contents: List[str]) -> List[str]:
         if line.startswith("def"):
             # find the parameters of the function between ()
             parameters = re.findall(r"\((.*?)\)", line)
-            # find the parameters with default value set to None
-            # Exampl def (paramA: int, paramB: float = None)
-            # Then we need to add Optional[type] to paramB
+            # find the parameters with default value None
             parameters_with_default_value_none = [
                 parameter
                 for parameter in parameters[0].split(",")
                 if "= None" in parameter
             ]
-            # add Optional[type] to parameters
+            # add Optional[type] to parameters with default value None
             for parameter in parameters_with_default_value_none:
                 parameter_name = parameter.split(":")[0].strip()
                 parameter_type = parameter.split(":")[1].strip()
