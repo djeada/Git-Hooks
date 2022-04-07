@@ -366,7 +366,7 @@ def add_missing_docstring(contents: List[str]) -> List[str]:
     i = 0
     while i < len(contents) - 1:
         line = contents[i].strip()
-        indentation = len(contents[i]) - len(contents[i].lstrip())
+        indentation = len(contents[i]) - len(contents[i].lstrip()) + 4
         if line.startswith("def"):
             end_index = i
             while not line.endswith(":"):
@@ -378,7 +378,7 @@ def add_missing_docstring(contents: List[str]) -> List[str]:
 
                 parameters_text = "".join(contents[i:end_index+1]).replace('\n', ' ')
                 parameters_text = parameters_text[parameters_text.find("(") + 1 : parameters_text.rfind(")")]
-                parameters = [param.strip() for param in parameters_text.split(",")]
+                parameters = [param.strip() for param in parameters_text.split(",") if param.strip() and not param.strip().endswith("]")]
                                 
                 # add docstring
                 contents.insert(end_index + 1, f'{" " * indentation}"""')
@@ -419,7 +419,8 @@ def assert_optional_type_hints(contents: List[str]) -> List[str]:
 
             parameters_text = "".join(contents[i:end_index+1]).replace('\n', ' ')
             parameters_text = parameters_text[parameters_text.find("(") + 1 : parameters_text.rfind(")")]
-            parameters = [param.strip() for param in parameters_text.split(",")]
+            parameters = [param.strip() for param in parameters_text.split(",") if param.strip() and not param.strip().endswith("]")]
+
             # find the parameters with default value None
             parameters_with_default_value_none = [
                 parameter
