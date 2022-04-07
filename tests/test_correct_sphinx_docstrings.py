@@ -5,7 +5,7 @@ from src.correct_sphinx_docstrings import (
     correct_sphinx_docstrings,
     find_next_docstring,
     convert_to_third_person,
-    add_missing_docstring,
+    add_missing_docstring, assert_optional_type_hints,
 )
 
 
@@ -311,6 +311,45 @@ def test_add_missing_docstring():
 
     content_as_list = file_content.split("\n")
     content_as_list = add_missing_docstring(content_as_list.copy())
+
+    result = "\n".join(content_as_list)
+    for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
+        assert line_result.strip() == line_expected.strip()
+
+
+def test_assert_optional_type_hints():
+    file_content = '''
+    import os
+    import sys
+
+    def some_function(param_a: int, param_b: str = None):
+        return param_a + param_b
+
+    def some_other_function(param_a: int, param_b: str = None, param_c: int = None):
+        return param_a + param_b + param_c
+    
+    if __name__ == '__main__':
+        some_function(1, 2)
+        some_other_function(1, 2, 3)
+     '''
+
+    expected = '''
+    import os
+    import sys
+
+    def some_function(param_a: int, param_b: Optional[str] = None):
+        return param_a + param_b
+    
+    def some_other_function(param_a: int, param_b: Optional[str] = None, param_c: Optional[int] = None):
+        return param_a + param_b + param_c
+
+    if __name__ == '__main__':
+        some_function(1, 2)
+        some_other_function(1, 2, 3)
+    '''
+
+    content_as_list = file_content.split("\n")
+    content_as_list = assert_optional_type_hints(content_as_list.copy())
 
     result = "\n".join(content_as_list)
     for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):

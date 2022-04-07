@@ -21,6 +21,7 @@ def correct_sphinx_docstrings(file_name: str) -> bool:
     contents = Path(file_name).read_text()
 
     content_as_list = add_missing_docstring(contents.split("\n").copy())
+    content_as_list = assert_optional_type_hints(content_as_list.copy())
     contents = "\n".join(content_as_list)
 
     next_docstring_pos = find_next_docstring(contents.split("\n"), 0)
@@ -387,6 +388,34 @@ def add_missing_docstring(contents: List[str]) -> List[str]:
 
     return contents
 
+def assert_optional_type_hints(contents: List[str]) -> List[str]:
+    """
+    Find parameters with default value None and add Optional[type] to them.
+
+    :param contents: list of lines in file
+    :return: list of lines in file
+    """
+
+    i = 0
+    while i < len(contents) - 1:
+        line = contents[i].strip()
+        if line.startswith("def"):
+            # find the parameters of the function between ()
+            parameters = re.findall(r"\((.*?)\)", line)
+            # find the parameters with default value set to None
+            # Exampl def (paramA: int, paramB: float = None)
+            # Then we need to add Optional[type] to paramB
+            parameters_with_default_value_none = [parameter for parameter in parameters[0].split(",") if "= None" in parameter]
+            # add Optional[type] to parameters
+            for parameter in parameters_with_default_value_none:
+                parameter_name = parameter.split(":")[0].strip()
+                parameter_type = parameter.split(":")[1].strip()
+                parameter_type = parameter_type.replace("= None", "").rstrip()
+                contents[i] = contents[i].replace(parameter, f" {parameter_name}: Optional[{parameter_type}] = None")
+
+        i += 1
+
+    return contents
 
 if __name__ == "__main__":
 
