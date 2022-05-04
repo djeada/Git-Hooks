@@ -45,3 +45,4 @@ Don't forget to add execution permissions to the <code>pre-commit</code> script!
 
 * https://www.git-scm.com/docs/githooks
 * https://githooks.com/
+* https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
