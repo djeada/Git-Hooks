@@ -41,7 +41,7 @@ Don't forget to add execution permissions to the <code>pre-commit</code> script!
 | cpp formatter | Beautify and format every cpp file found in the current repository. | <a>cpp_format.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/cpp_format.sh">cpp_format.sh</a> |
 | shell formatter | Beautify and format every shell script found in the current repository. | <a>shell_format.py</a> | <a href="https://github.com/djeada/Git-Hooks/blob/main/src/shell_format.sh">shell_format.sh</a> |
 
-## Bibliography
+## Refrences
 
 * https://www.git-scm.com/docs/githooks
 * https://githooks.com/
