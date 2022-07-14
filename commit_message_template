@@ -1,11 +1,11 @@
 # TITLE
-# [scope]: [type]: short summary
+# [risk level]: [change type]: short summary
 #
-# Scope:
-# major - backwards incompatible
-# minor - backwards compatible
+# Risk level:
+# lethal - backwards incompatible
+# harmless - backwards compatible
 #
-# Type:
+# Change type:
 # feature - extensions on the old feature or completely new
 # fix - bug fix, no new features
 # refactor - e.g. renaming variables, decoupling classes etc.
