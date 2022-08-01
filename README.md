@@ -1,6 +1,29 @@
 # Git-Hooks
 A collection of useful git hooks. 
 
+## Set Up for Unix, MacOS
+
+1. Download the code from the repository:
+    
+```Bash
+git clone https://github.com/djeada/Minimal-Flask-App.git
+cd Minimal-Flask-App
+```
+
+2. Install modules via VENV:
+
+```Bash
+virtualenv env
+source env/bin/activate
+pip install -r requirements.txt
+```
+
+3. Run any script from src directory:
+
+```Bash
+python src/example_script.py
+```
+
 ## What are hooks?
 
 When you open any decent repository, you'll see a <code>hooks</code> folder. Git iteslf contains a collection of hooks that can run scripts in a variety of scenarios. For example, before attempting to push your code to the repository, after pulling it from the remote, or before creating a new commit. 
