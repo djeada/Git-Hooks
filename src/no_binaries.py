@@ -1,7 +1,7 @@
-import sys
 import pathlib
 import re
 import shutil
+import sys
 
 if __name__ == "__main__":
 
@@ -29,13 +29,15 @@ if __name__ == "__main__":
         files.append(file)
 
     # check if there are any binaries in staging area
-    # binaries include: executables, shared libraries, static libraries, object files, archives, images, and unknown files
+    # binaries include: executables, shared libraries, static libraries,
+    # object files, archives, images, and unknown files
     binaries = []
     for file in files:
         if re.search(r"\.(exe|dll|so|a|o|ar|img|bin|unknown)$", file.name):
             binaries.append(file)
 
-    # if there are binaries in staging area, move them to .git/info/sparse-checkout/binaries
+    # if there are binaries in staging area, move them to
+    # .git/info/sparse-checkout/binaries
     if len(binaries) > 0:
         binaries_dir = path + "/.git/info/sparse-checkout/binaries"
         if not pathlib.Path(binaries_dir).is_dir():

@@ -1,5 +1,5 @@
-import sys
 import pathlib
+import sys
 
 
 def correct_file_name(file_name: str) -> None:

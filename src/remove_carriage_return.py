@@ -1,6 +1,6 @@
 # get file name from command line
-import sys
 import pathlib
+import sys
 
 
 def remove_carriage_return(file_name: str) -> None:

@@ -1,4 +1,3 @@
-import re
 import sys
 from pathlib import Path
 from typing import List, Tuple
@@ -91,13 +90,13 @@ def assert_single_whitespace_after_second_semicolon(docstring: List[str]) -> Lis
 
 
 def assert_empty_line_between_description_and_param_list(
-    docstring: List[str]
+    docstring: List[str],
 ) -> List[str]:
     """
     make sure empty line between description and list of params
     find first param in docstring and check if there is description above it
     if so, make sure that there is empty line between description and param list
-    
+
     :param docstring: list of lines in docstring
     :return: list of lines in docstring
     """
@@ -118,7 +117,8 @@ def assert_empty_line_between_description_and_param_list(
     if start_of_param_list == -1:
         return docstring
 
-    # remove all empty lines before param list and enter a single empty line before param list
+    # remove all empty lines before param list and enter a single empty line
+    # before param list
     while docstring[start_of_param_list - 1].strip() == "":
         docstring.pop(start_of_param_list - 1)
         start_of_param_list -= 1
@@ -373,20 +373,30 @@ def add_missing_docstring(contents: List[str]) -> List[str]:
                 end_index += 1
                 line = contents[end_index].strip()
 
-            if contents[end_index+ 1].strip() not in possible_docstring_start:
+            if contents[end_index + 1].strip() not in possible_docstring_start:
                 # find the parameters of the function between ()
 
-                parameters_text = "".join(contents[i:end_index+1]).replace('\n', ' ')
-                parameters_text = parameters_text[parameters_text.find("(") + 1 : parameters_text.rfind(")")]
-                parameters = [param.strip() for param in parameters_text.split(",") if param.strip() and not param.strip().endswith("]")]
-                                
+                parameters_text = "".join(contents[i : end_index + 1]).replace(
+                    "\n", " "
+                )
+                parameters_text = parameters_text[
+                    parameters_text.find("(") + 1 : parameters_text.rfind(")")
+                ]
+                parameters = [
+                    param.strip()
+                    for param in parameters_text.split(",")
+                    if param.strip() and not param.strip().endswith("]")
+                ]
+
                 # add docstring
                 contents.insert(end_index + 1, f'{" " * indentation}"""')
-                contents.insert(end_index + 2, f'{" " * indentation}Description of function \n')
+                contents.insert(
+                    end_index + 2, f'{" " * indentation}Description of function \n'
+                )
                 # add parameters
                 end_index += 3
                 for parameter in parameters:
-                    parameter = parameter.split(':')[0]
+                    parameter = parameter.split(":")[0]
                     contents.insert(
                         end_index, f'{" " * indentation}:param {parameter.strip()}:'
                     )
@@ -417,15 +427,19 @@ def assert_optional_type_hints(contents: List[str]) -> List[str]:
                 end_index += 1
                 line = contents[end_index].strip()
 
-            parameters_text = "".join(contents[i:end_index+1]).replace('\n', ' ')
-            parameters_text = parameters_text[parameters_text.find("(") + 1 : parameters_text.rfind(")")]
-            parameters = [param.strip() for param in parameters_text.split(",") if param.strip() and not param.strip().endswith("]")]
+            parameters_text = "".join(contents[i : end_index + 1]).replace("\n", " ")
+            parameters_text = parameters_text[
+                parameters_text.find("(") + 1 : parameters_text.rfind(")")
+            ]
+            parameters = [
+                param.strip()
+                for param in parameters_text.split(",")
+                if param.strip() and not param.strip().endswith("]")
+            ]
 
             # find the parameters with default value None
             parameters_with_default_value_none = [
-                parameter
-                for parameter in parameters
-                if "= None" in parameter
+                parameter for parameter in parameters if "= None" in parameter
             ]
             # add Optional[type] to parameters with default value None
             for parameter in parameters_with_default_value_none:
@@ -434,7 +448,8 @@ def assert_optional_type_hints(contents: List[str]) -> List[str]:
                 parameter_type = parameter_type.replace("= None", "").rstrip()
                 for j in range(i, end_index + 1):
                     contents[j] = contents[j].replace(
-                        parameter, f"{parameter_name}: Optional[{parameter_type}] = None"
+                        parameter,
+                        f"{parameter_name}: Optional[{parameter_type}] = None",
                     )
 
         i += 1

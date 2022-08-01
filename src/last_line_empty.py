@@ -1,5 +1,5 @@
-import sys
 import pathlib
+import sys
 
 
 def make_sure_last_line_is_empty(file_name: str) -> None:

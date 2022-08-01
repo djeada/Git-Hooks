@@ -1,5 +1,5 @@
-import sys
 import pathlib
+import sys
 
 
 def remove_trailing_whitespaces(file_name: str) -> None:

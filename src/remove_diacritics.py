@@ -1,6 +1,6 @@
 # get file name from command line
-import sys
 import pathlib
+import sys
 
 
 def remove_diacritics(file_name: str) -> None:
@@ -10,7 +10,8 @@ def remove_diacritics(file_name: str) -> None:
         contents = file.read()
 
     # replace each character from aaaaaceeeeeiiiilnooooosuuuuüüüüzzAAAAACEEEEEIIIILNOOOOOSUUUUÜÜÜÜZZ
-    # with a respective character from aaaaaceeeeeiiiilnooooosuuuuüüüüzzAAAAACEEEEEIIIILNOOOOOSUUUUÜÜÜÜZZ
+    # with a respective character from
+    # aaaaaceeeeeiiiilnooooosuuuuüüüüzzAAAAACEEEEEIIIILNOOOOOSUUUUÜÜÜÜZZ
 
     mapping = {
         "ą": "a",
