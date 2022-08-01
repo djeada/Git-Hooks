@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 format() {
-    black "$1"/**/*.sh
-    autopep8 "$1"/**/*.sh
+    autopep8 --in-place --aggressive "$1"
+    autoflake --in-place --remove-unused-variables --remove-all-unused-imports --expand-star-imports "$1"
+    isort "$1"
+    black "$1"
 }
 
 main() {
