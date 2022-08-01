@@ -133,7 +133,10 @@ def test_find_next_docstring():
         """
         return
 
-    def some_other_function():
+    def some_other_function(
+            param1: int = object(),
+            param2: float = 1.52,
+        ):
         """
         Description
         :param param1:      description of param1
@@ -152,7 +155,7 @@ def test_find_next_docstring():
     result = find_next_docstring(file_content.split("\n"), 0)
     assert result == expected
 
-    expected = (14, 19)
+    expected = (17, 22)
     result = find_next_docstring(file_content.split("\n"), 11)
     assert result == expected
 
