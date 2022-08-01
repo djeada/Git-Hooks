@@ -6,7 +6,7 @@ from src.correct_sphinx_docstrings import (
     find_next_docstring,
     convert_to_third_person,
     add_missing_docstring,
-    assert_optional_type_hints,
+    assert_optional_type_hints, preserve_parameter_order,
 )
 
 
@@ -160,77 +160,6 @@ def test_find_next_docstring():
     assert result == expected
 
 
-def test_correct_sphinx_docstrings(tmpdir):
-    file_content = '''
-    import os
-    import sys
-
-    def some_function():
-        """
-        Description
-        :param param1: description of param1
-        :param param2: description of param2
-        :return: description of return value
-        """
-        return
-
-    def some_other_function():
-        """
-        Description
-        :param param1:      description of param1
-     .  :param param2: description of param2
-        :return: description of return value
-        """
-        return
-
-    if __name__ == '__main__':
-        some_function()
-        some_other_function()
-
-    '''
-
-    expected = '''
-    import os
-    import sys
-    
-    def some_function():
-        """
-        Description
-        
-        :param param1: Description of param1
-        :param param2: Description of param2
-        :return: Description of return value
-        """
-        return
-
-    def some_other_function():
-        """
-        Description
-        
-        :param param1: Description of param1
-        :param param2: Description of param2
-        :return: Description of return value
-        """
-        return
-
-    if __name__ == '__main__':
-        some_function()
-        some_other_function()
-
-    '''
-
-    file_path = tmpdir.join("test.py")
-    file_path.write(file_content)
-
-    correct_sphinx_docstrings(file_path.strpath)
-
-    with open(file_path.strpath, "r") as f:
-        result = f.read()
-
-    for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
-        assert line_result.strip() == line_expected.strip()
-
-
 def test_convert_to_third_person():
     docstring = [
         '   """',
@@ -372,5 +301,138 @@ def test_assert_optional_type_hints():
     content_as_list = assert_optional_type_hints(content_as_list.copy())
 
     result = "\n".join(content_as_list)
+    for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
+        assert line_result.strip() == line_expected.strip()
+
+
+def test_preserve_parameter_order():
+    file_content = """
+    import os
+    import sys
+
+    def some_function(param_a: int, param_b: str = None):
+        return param_a + param_b
+
+    def some_other_function(
+                            param_a: int, 
+                            param_b: str = None, 
+                            param_c: int = None
+                            ):
+        \"\"\"
+        Description
+        
+        :param param_c: description c
+        :param param_a: description a
+        :param param_b: description b
+        :return:
+        \"\"\"
+        return param_a + param_b + param_c
+
+    if __name__ == '__main__':
+        some_function(1, 2)
+        some_other_function(1, 2, 3)
+     """
+
+    expected = """
+    import os
+    import sys
+
+    def some_function(param_a: int, param_b: str = None):
+        return param_a + param_b
+
+    def some_other_function(
+                            param_a: int, 
+                            param_b: str = None, 
+                            param_c: int = None
+                            ):
+        \"\"\"
+        Description
+        
+        :param param_a: description a
+        :param param_b: description b
+        :param param_c: description c
+        :return:
+        \"\"\"
+        return param_a + param_b + param_c
+
+    if __name__ == '__main__':
+        some_function(1, 2)
+        some_other_function(1, 2, 3)
+    """
+    content_as_list = file_content.split("\n")
+    content_as_list = preserve_parameter_order(content_as_list.copy())
+
+    result = "\n".join(content_as_list)
+    for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
+        assert line_result.strip() == line_expected.strip()
+
+
+def test_correct_sphinx_docstrings(tmpdir):
+    file_content = '''
+    import os
+    import sys
+
+    def some_function():
+        """
+        Description
+        :param param1: description of param1
+        :param param2: description of param2
+        :return: description of return value
+        """
+        return
+
+    def some_other_function():
+        """
+        Description
+        :param param1:      description of param1
+     .  :param param2: description of param2
+        :return: description of return value
+        """
+        return
+
+    if __name__ == '__main__':
+        some_function()
+        some_other_function()
+
+    '''
+
+    expected = '''
+    import os
+    import sys
+
+    def some_function():
+        """
+        Description
+
+        :param param1: Description of param1
+        :param param2: Description of param2
+        :return: Description of return value
+        """
+        return
+
+    def some_other_function():
+        """
+        Description
+
+        :param param1: Description of param1
+        :param param2: Description of param2
+        :return: Description of return value
+        """
+        return
+
+    if __name__ == '__main__':
+        some_function()
+        some_other_function()
+
+    '''
+
+    file_path = tmpdir.join("test.py")
+    file_path.write(file_content)
+
+    correct_sphinx_docstrings(file_path.strpath)
+
+    with open(file_path.strpath, "r") as f:
+        result = f.read()
+
     for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
         assert line_result.strip() == line_expected.strip()

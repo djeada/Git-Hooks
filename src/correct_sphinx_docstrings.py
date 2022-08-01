@@ -2,12 +2,6 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
-"""
-TODO:
-- print a message when line is being changed
-- make sure that : is last char in :param param_name:
-"""
-
 
 def correct_sphinx_docstrings(file_name: str) -> bool:
     """
@@ -26,7 +20,7 @@ def correct_sphinx_docstrings(file_name: str) -> bool:
     next_docstring_pos = find_next_docstring(contents.split("\n"), 0)
     while next_docstring_pos != (-1, -1):
         start_pos, end_pos = next_docstring_pos
-        docstring = contents.split("\n")[start_pos : end_pos + 1]
+        docstring = contents.split("\n")[start_pos: end_pos + 1]
         docstring = assert_empty_line_between_description_and_param_list(
             docstring.copy()
         )
@@ -35,9 +29,9 @@ def correct_sphinx_docstrings(file_name: str) -> bool:
         docstring = convert_to_third_person(docstring.copy())
         contents_list_of_lines = contents.split("\n")
         contents_list_of_lines = (
-            contents_list_of_lines[:start_pos]
-            + docstring
-            + contents_list_of_lines[end_pos + 1 :]
+                contents_list_of_lines[:start_pos]
+                + docstring
+                + contents_list_of_lines[end_pos + 1:]
         )
         contents = "\n".join(contents_list_of_lines)
 
@@ -55,7 +49,7 @@ def correct_sphinx_docstrings(file_name: str) -> bool:
 
 def assert_single_whitespace_after_second_semicolon(docstring: List[str]) -> List[str]:
     """
-    Find the lines conaining prefixes = [":param", ":return", ":raises"].
+    Find the lines containing prefixes = [":param", ":return", ":raises"].
     For those lines make sure that there is only one whitespace after the second semicolon.
 
     :param docstring: list of lines in docstring
@@ -69,28 +63,28 @@ def assert_single_whitespace_after_second_semicolon(docstring: List[str]) -> Lis
             if index != -1:
                 index_of_second_semicolon = line.find(":", index + len(prefix))
                 if index_of_second_semicolon != -1:
-                    line_after_second_semicolon = line[index_of_second_semicolon + 1 :]
+                    line_after_second_semicolon = line[index_of_second_semicolon + 1:]
 
                     while line_after_second_semicolon.startswith(" "):
                         line_after_second_semicolon = line_after_second_semicolon[1:]
 
                     if len(line_after_second_semicolon) > 1:
                         line_after_second_semicolon = (
-                            " "
-                            + line_after_second_semicolon[0].upper()
-                            + line_after_second_semicolon[1:]
+                                " "
+                                + line_after_second_semicolon[0].upper()
+                                + line_after_second_semicolon[1:]
                         )
 
                     docstring[i] = (
-                        line[: index_of_second_semicolon + 1]
-                        + line_after_second_semicolon
+                            line[: index_of_second_semicolon + 1]
+                            + line_after_second_semicolon
                     )
 
     return docstring
 
 
 def assert_empty_line_between_description_and_param_list(
-    docstring: List[str],
+        docstring: List[str],
 ) -> List[str]:
     """
     make sure empty line between description and list of params
@@ -352,6 +346,19 @@ def find_next_docstring(contents: List[str], index: int) -> Tuple[int, int]:
 
     return -1, -1
 
+def extract_parameters(contents: List[str], start_index: int, end_index:int) -> List[str]:
+    parameters_text = "".join(contents[start_index: end_index + 1]).replace(
+        "\n", " "
+    )
+    parameters_text = parameters_text[
+                        parameters_text.find("(") + 1: parameters_text.rfind(")")
+                        ]
+    parameters = [
+        param.strip()
+        for param in parameters_text.split(",")
+        if param.strip() and not param.strip().endswith("]")
+    ]
+    return parameters
 
 def add_missing_docstring(contents: List[str]) -> List[str]:
     """
@@ -376,17 +383,7 @@ def add_missing_docstring(contents: List[str]) -> List[str]:
             if contents[end_index + 1].strip() not in possible_docstring_start:
                 # find the parameters of the function between ()
 
-                parameters_text = "".join(contents[i : end_index + 1]).replace(
-                    "\n", " "
-                )
-                parameters_text = parameters_text[
-                    parameters_text.find("(") + 1 : parameters_text.rfind(")")
-                ]
-                parameters = [
-                    param.strip()
-                    for param in parameters_text.split(",")
-                    if param.strip() and not param.strip().endswith("]")
-                ]
+                parameters = extract_parameters(contents, i, end_index)
 
                 # add docstring
                 contents.insert(end_index + 1, f'{" " * indentation}"""')
@@ -427,15 +424,7 @@ def assert_optional_type_hints(contents: List[str]) -> List[str]:
                 end_index += 1
                 line = contents[end_index].strip()
 
-            parameters_text = "".join(contents[i : end_index + 1]).replace("\n", " ")
-            parameters_text = parameters_text[
-                parameters_text.find("(") + 1 : parameters_text.rfind(")")
-            ]
-            parameters = [
-                param.strip()
-                for param in parameters_text.split(",")
-                if param.strip() and not param.strip().endswith("]")
-            ]
+            parameters = extract_parameters(contents, i, end_index)
 
             # find the parameters with default value None
             parameters_with_default_value_none = [
@@ -457,8 +446,74 @@ def assert_optional_type_hints(contents: List[str]) -> List[str]:
     return contents
 
 
-if __name__ == "__main__":
+def preserve_parameter_order(contents: List[str]) -> List[str]:
+    """
+    """
+    start_index, end_index = find_next_docstring(contents, 0)
 
+    if start_index == -1:
+        return contents
+    
+    # find the index of first 'def' above start_index
+    i = start_index - 1
+    while i >= 0:
+        line = contents[i].strip()
+        if line.startswith("def"):
+            break
+        i -= 1
+    
+    if i == -1:
+        return contents
+    
+    parameters_from_function = extract_parameters(contents, i, start_index)
+    
+    docstring = contents[start_index: end_index + 1]
+    parameters_from_docstring = []
+
+    for line in docstring:
+        if line.strip().startswith(":param"):
+            parameters_from_docstring.append(line)
+
+    # order of parameters in docstring must match the order of parameters in parameters
+    for i, parameter in enumerate(parameters_from_function):
+        parameter_name = parameter.split(":")[0].strip()
+        # find in which line the parameter in parameters_from_docstring is
+        flag = False
+        for j, line in enumerate(parameters_from_docstring):
+            if f":param {parameter_name}" in line:
+                if i != j:
+                    # swap j and i if i < len(parameters_from_docstring)
+                    if i < len(parameters_from_docstring):
+                        parameters_from_docstring[j], parameters_from_docstring[i] = parameters_from_docstring[i], parameters_from_docstring[j]
+                    else:
+                        flag = True
+                break
+        if flag:
+            # add parameter to docstring if it is not in docstring
+            parameters_from_docstring.insert(i, f":param {parameter_name}:")
+        
+    # remove all lines starting with :param from docstring
+    for i, line in reversed(list(enumerate(docstring.copy()))):
+        if line.strip().startswith(":param"):
+            docstring.pop(i)
+    
+    # remove the last line of docstring if it starts with :return:
+    n = len(docstring) - 1
+    if n > 0 and docstring[n - 1].strip().startswith(":return"):
+        n -= 1
+    if n < 0:
+        n = 0
+
+    # append parameters from parameters_from_docstring to docstring
+    for parameter in parameters_from_docstring:
+        docstring.insert(n, parameter)
+        n += 1
+    
+    contents[start_index: end_index + 1] = docstring
+    return contents
+
+
+def main():
     # check if user provided file name
     if len(sys.argv) != 2:
         print("Usage: python correct_sphinx_docstrings.py <dir_name>")
@@ -475,3 +530,7 @@ if __name__ == "__main__":
     for file in Path(file_name).glob("**/*"):
         if file.is_file():
             correct_sphinx_docstrings(file)
+
+
+if __name__ == "__main__":
+    main()
