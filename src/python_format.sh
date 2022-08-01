@@ -16,7 +16,7 @@ main() {
     fi
 
     if [ "$1" == '.' ] || [ -d "${1}" ]; then
-        for file in $(find "$1" -maxdepth 10 -type f)
+        for file in $(find "$1" -maxdepth 10 -type f -name "*.py")
         do
             format "$file"
         done
