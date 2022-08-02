@@ -6,8 +6,8 @@ A collection of useful git hooks.
 1. Download the code from the repository:
     
 ```Bash
-git clone https://github.com/djeada/Minimal-Flask-App.git
-cd Minimal-Flask-App
+git clone https://github.com/djeada/Git-Hooks.git
+cd Git-Hooks
 ```
 
 2. Install modules via VENV:
