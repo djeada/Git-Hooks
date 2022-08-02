@@ -1,13 +1,9 @@
-from src.correct_sphinx_docstrings import (
-    assert_empty_line_between_description_and_param_list,
-    assert_no_unnecessary_prefixes,
-    assert_single_whitespace_after_second_semicolon,
-    correct_sphinx_docstrings,
-    find_next_docstring,
-    convert_to_third_person,
-    add_missing_docstring,
-    assert_optional_type_hints, preserve_parameter_order,
-)
+from pathlib import Path
+
+from src.correct_sphinx_docstrings import ScriptFormatter, ScriptFormatterConfig, TypeHintsFormatter, \
+    TypeHintFormatterConfig, ThirdPersonConverter
+
+from src.correct_sphinx_docstrings import DocstringFormatter, DocstringFormatterConfig
 
 
 def test_assert_empty_line_between_description_and_param_list():
@@ -22,7 +18,9 @@ def test_assert_empty_line_between_description_and_param_list():
         '    """',
     ]
     expected = docstring
-    result = assert_empty_line_between_description_and_param_list(docstring.copy())
+    formatter = DocstringFormatter(DocstringFormatterConfig(docstring))
+
+    result = formatter.empty_line_between_description_and_param_list()
     assert result == expected
 
     # missing empty line between description and param list
@@ -43,7 +41,9 @@ def test_assert_empty_line_between_description_and_param_list():
         "    :return: description of return value",
         '    """',
     ]
-    result = assert_empty_line_between_description_and_param_list(docstring)
+    formatter = DocstringFormatter(DocstringFormatterConfig(docstring))
+
+    result = formatter.empty_line_between_description_and_param_list()
     assert result == expected
 
     # multiple empty lines between description and param list
@@ -67,7 +67,9 @@ def test_assert_empty_line_between_description_and_param_list():
         "    :return: description of return value",
         '    """',
     ]
-    result = assert_empty_line_between_description_and_param_list(docstring)
+    formatter = DocstringFormatter(DocstringFormatterConfig(docstring))
+
+    result = formatter.empty_line_between_description_and_param_list()
     assert result == expected
 
 
@@ -90,8 +92,8 @@ def test_assert_no_unnecessary_prefixes():
         "    :return: description of return value",
         '    """',
     ]
-
-    result = assert_no_unnecessary_prefixes(docstring)
+    formatter = DocstringFormatter(DocstringFormatterConfig(docstring))
+    result = formatter.no_unnecessary_prefixes()
     assert result == expected
 
 
@@ -114,8 +116,8 @@ def test_assert_single_whitespace_after_second_semicolon():
         "    :return: Description of return value",
         '    """',
     ]
-
-    result = assert_single_whitespace_after_second_semicolon(docstring)
+    formatter = DocstringFormatter(DocstringFormatterConfig(docstring))
+    result = formatter.single_whitespace_after_second_semicolon()
     assert result == expected
 
 
@@ -150,13 +152,15 @@ def test_find_next_docstring():
         some_other_function()
 
     '''
+    formatter = ScriptFormatter(ScriptFormatterConfig(Path()))
+    formatter.content = file_content
 
     expected = (5, 10)
-    result = find_next_docstring(file_content.split("\n"), 0)
+    result = formatter.find_next_docstring(0)
     assert result == expected
 
     expected = (17, 22)
-    result = find_next_docstring(file_content.split("\n"), 11)
+    result = formatter.find_next_docstring( 11)
     assert result == expected
 
 
@@ -171,7 +175,8 @@ def test_convert_to_third_person():
         '    """',
     ]
     expected = docstring
-    result = convert_to_third_person(docstring.copy())
+    converter = ThirdPersonConverter(docstring)
+    result = converter.convert()
     assert result == expected
 
     docstring = [
@@ -192,7 +197,8 @@ def test_convert_to_third_person():
         "    :return: description of return value",
         '    """',
     ]
-    result = convert_to_third_person(docstring.copy())
+    converter = ThirdPersonConverter(docstring)
+    result = converter.convert()
     assert result == expected
 
 
@@ -249,9 +255,9 @@ def test_add_missing_docstring():
         some_function(1, 2)
         some_other_function(1, 2, 3)
     '''
-
-    content_as_list = file_content.split("\n")
-    content_as_list = add_missing_docstring(content_as_list.copy())
+    formatter = ScriptFormatter(ScriptFormatterConfig(Path()))
+    formatter.content = file_content
+    content_as_list = formatter.add_missing_docstrings()
 
     result = "\n".join(content_as_list)
     for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
@@ -297,8 +303,8 @@ def test_assert_optional_type_hints():
         some_other_function(1, 2, 3)
     """
 
-    content_as_list = file_content.split("\n")
-    content_as_list = assert_optional_type_hints(content_as_list.copy())
+    formatter = TypeHintsFormatter(TypeHintFormatterConfig(file_content))
+    content_as_list = formatter.optional_type_hints()
 
     result = "\n".join(content_as_list)
     for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
@@ -359,15 +365,16 @@ def test_preserve_parameter_order():
         some_function(1, 2)
         some_other_function(1, 2, 3)
     """
-    content_as_list = file_content.split("\n")
-    content_as_list = preserve_parameter_order(content_as_list.copy())
+    formatter = ScriptFormatter(ScriptFormatterConfig(Path()))
+    formatter.content = file_content
+    content_as_list = formatter.preserve_parameter_order()
 
     result = "\n".join(content_as_list)
     for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
         assert line_result.strip() == line_expected.strip()
 
 
-def test_correct_sphinx_docstrings(tmpdir):
+def test_script_formatter_config(tmpdir):
     file_content = '''
     import os
     import sys
@@ -429,7 +436,8 @@ def test_correct_sphinx_docstrings(tmpdir):
     file_path = tmpdir.join("test.py")
     file_path.write(file_content)
 
-    correct_sphinx_docstrings(file_path.strpath)
+    config = ScriptFormatterConfig(Path(file_path))
+    ScriptFormatter(config)
 
     with open(file_path.strpath, "r") as f:
         result = f.read()
