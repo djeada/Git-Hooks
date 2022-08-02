@@ -488,7 +488,7 @@ class Utils:
 def main():
     # check if user provided file name
     if len(sys.argv) != 2:
-        print("Usage: python correct_sphinx_docstring.py <dir_name>")
+        print("Usage: python correct_docstrings.py <dir_name>")
         exit()
 
     # check if file exists
