@@ -99,7 +99,7 @@ class ScriptFormatter:
                 if content[end_index + 1].strip() not in possible_docstring_start:
                     # find the parameters of the function between ()
 
-                    parameters = extract_parameters(content, i, end_index)
+                    parameters = Utils.extract_parameters(content, i, end_index)
 
                     # add docstring
                     content.insert(end_index + 1, f'{" " * indentation}"""')
@@ -167,7 +167,7 @@ class ScriptFormatter:
         if i == -1:
             return content
 
-        parameters_from_function = extract_parameters(content, i, start_index)
+        parameters_from_function = Utils.extract_parameters(content, i, start_index)
 
         docstring = content[start_index: end_index + 1]
         parameters_from_docstring = []
@@ -238,7 +238,7 @@ class TypeHintsFormatter:
                     end_index += 1
                     line = content[end_index].strip()
 
-                parameters = extract_parameters(content, i, end_index)
+                parameters = Utils.extract_parameters(content, i, end_index)
 
                 # find the parameters with default value None
                 parameters_with_default_value_none = [
@@ -465,22 +465,24 @@ class ThirdPersonConverter:
 
         return letters, punctuation
 
+class Utils:
 
-def extract_parameters(content: List[str], start_index: int, end_index: int) -> List[str]:
-    """
-    """
-    parameters_text = "".join(content[start_index: end_index + 1]).replace(
-        "\n", " "
-    )
-    parameters_text = parameters_text[
-                      parameters_text.find("(") + 1: parameters_text.rfind(")")
-                      ]
-    parameters = [
-        param.strip()
-        for param in parameters_text.split(",")
-        if param.strip() and not param.strip().endswith("]")
-    ]
-    return parameters
+    @staticmethod
+    def extract_parameters(content: List[str], start_index: int, end_index: int) -> List[str]:
+        """
+        """
+        parameters_text = "".join(content[start_index: end_index + 1]).replace(
+            "\n", " "
+        )
+        parameters_text = parameters_text[
+                          parameters_text.find("(") + 1: parameters_text.rfind(")")
+                          ]
+        parameters = [
+            param.strip()
+            for param in parameters_text.split(",")
+            if param.strip() and not param.strip().endswith("]")
+        ]
+        return parameters
 
 
 def main():
