@@ -181,25 +181,28 @@ def test_convert_to_third_person():
 
     docstring = [
         '   """',
-        "    use unlimited option",
+        "    use unlimited option of giving a better life.",
+        "   Can do some more specific calculations",
         "",
-        "    :param param1: description of param1",
-        "    :param param2: description of param2",
+        "    :param param1: can do many things",
+        "    :param param2: is usually employed for taxes",
         "    :return: description of return value",
         '    """',
     ]
     expected = [
         '   """',
-        "    uses unlimited option",
+        "    uses unlimited option of giving a better life.",
+        "   Can do some more specific calculations",
         "",
-        "    :param param1: description of param1",
-        "    :param param2: description of param2",
+        "    :param param1: can do many things",
+        "    :param param2: is usually employed for taxes",
         "    :return: description of return value",
         '    """',
     ]
     converter = ThirdPersonConverter(docstring)
     result = converter.convert()
-    assert result == expected
+    for expected_line, result_line in zip(result, expected):
+        assert expected_line == result_line
 
 
 def test_add_missing_docstring():
