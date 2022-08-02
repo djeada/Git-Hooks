@@ -1,9 +1,7 @@
 from pathlib import Path
 
-from src.correct_sphinx_docstrings import ScriptFormatter, ScriptFormatterConfig, TypeHintsFormatter, \
-    TypeHintFormatterConfig, ThirdPersonConverter
-
-from src.correct_sphinx_docstrings import DocstringFormatter, DocstringFormatterConfig
+from src.correct_docstrings import ScriptFormatter, ScriptFormatterConfig, TypeHintsFormatter, \
+    TypeHintFormatterConfig, ThirdPersonConverter, DocstringFormatter, DocstringFormatterConfig
 
 
 def test_assert_empty_line_between_description_and_param_list():
