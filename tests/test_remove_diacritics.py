@@ -2,6 +2,7 @@ from src.remove_diacritics import remove_diacritics
 import subprocess
 import sys
 import pytest
+from git_root import git_root
 
 original_content = (
     "Chwale nami soplicą wyciągała krucze podano. \n"
@@ -48,7 +49,8 @@ def test_remove_diacritics_bash(tmpdir):
 
     # run bash script
     # ../src/remove_diacritics.sh test_remove_diacritics.txt
-    subprocess.check_output(["src/remove_diacritics.sh", file_name])
+
+    subprocess.check_output([f"{git_root()}/src/remove_diacritics.sh", file_name])
     for result_line, expected_line in zip(
         file_name.read().split("\n"), expected_content.split("\n")
     ):

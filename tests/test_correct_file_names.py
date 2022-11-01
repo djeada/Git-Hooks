@@ -1,3 +1,5 @@
+from git_root import git_root
+
 from src.correct_file_names import correct_file_name
 import subprocess
 import sys
@@ -15,13 +17,13 @@ temp_names_to_correct = {
 def test_correct_file_name(tmpdir):
     # create a temp dir and temp files in it
     # correct file names and check if they are correct
-    tmpdir.mkdir(temp_dir)
-    for file in temp_names_to_correct.keys():
-        tmpdir.join(temp_dir, file).write(file)
-    for file in tmpdir.join(temp_dir).listdir():
+    temp_dir_path = tmpdir.mkdir(temp_dir)
+    for file_name in temp_names_to_correct.keys():
+        (temp_dir_path / file_name).write("temp")
+    for file in temp_dir_path.listdir():
         correct_file_name(file)
         new_file_name = temp_names_to_correct[file.basename]
-        new_file = tmpdir.join(temp_dir, new_file_name)
+        new_file = temp_dir_path / new_file_name
         assert not file.exists()
         assert new_file.exists()
 
@@ -32,15 +34,15 @@ def test_correct_file_name(tmpdir):
 def test_correct_file_name_bash(tmpdir):
     # create a temp dir and temp files in it
     # correct file names and check if they are correct
-    tmpdir.mkdir(temp_dir)
-    for file in temp_names_to_correct.keys():
-        tmpdir.join(temp_dir, file).write(file)
+    temp_dir_path = tmpdir.mkdir(temp_dir)
+    for file_name in temp_names_to_correct.keys():
+        (temp_dir_path / file_name).write("temp")
     for file in tmpdir.join(temp_dir).listdir():
         result = subprocess.run(
-            ["bash", "src/correct_file_names.sh", f"{file.strpath}"]
+            ["bash", f"{git_root()}/src/correct_file_names.sh", f"{file.strpath}"]
         )
         print(result)
         new_file_name = temp_names_to_correct[file.basename]
-        new_file = tmpdir.join(temp_dir, new_file_name)
+        new_file = temp_dir_path / new_file_name
         assert not file.exists()
         assert new_file.exists()

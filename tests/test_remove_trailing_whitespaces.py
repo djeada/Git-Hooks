@@ -1,3 +1,5 @@
+from git_root import git_root
+
 from src.remove_trailing_whitespaces import remove_trailing_whitespaces
 import subprocess
 import sys
@@ -35,5 +37,7 @@ def test_remove_trailing_whitespaces_bash(tmpdir):
 
     # run bash script
     # ../src/remove_trailing_whitespaces.sh test_remove_trailing_whitespaces.txt
-    subprocess.check_output(["src/remove_trailing_whitespaces.sh", file_name])
+    subprocess.check_output(
+        [f"{git_root()}/src/remove_trailing_whitespaces.sh", file_name]
+    )
     assert file_name.read() == expected_content + "\n"

@@ -1,7 +1,14 @@
 from pathlib import Path
 
-from src.correct_docstrings import ScriptFormatter, ScriptFormatterConfig, TypeHintsFormatter, \
-    TypeHintFormatterConfig, ThirdPersonConverter, DocstringFormatter, DocstringFormatterConfig
+from src.correct_docstrings import (
+    ScriptFormatter,
+    ScriptFormatterConfig,
+    TypeHintsFormatter,
+    TypeHintFormatterConfig,
+    ThirdPersonConverter,
+    DocstringFormatter,
+    DocstringFormatterConfig,
+)
 
 
 def test_assert_empty_line_between_description_and_param_list():
@@ -158,7 +165,7 @@ def test_find_next_docstring():
     assert result == expected
 
     expected = (17, 22)
-    result = formatter.find_next_docstring( 11)
+    result = formatter.find_next_docstring(11)
     assert result == expected
 
 
