@@ -1,6 +1,4 @@
-from pathlib import Path
 
-from src.correct_docstrings.utils.config import DocstringFormatterConfig, ScriptFormatterConfig, TypeHintFormatterConfig
 from src.correct_docstrings.utils.docstring_filters import DocstringFormatter, ThirdPersonConverter, \
     EmptyLineBetweenDescriptionAndParams, RemoveUnwantedPrefixes, NoRepeatedWhitespaces, EndOfSentencePunctuation, \
     EnsureColonInParamDescription, IndentMultilineParamDescription

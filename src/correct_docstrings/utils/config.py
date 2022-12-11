@@ -1,3 +1,6 @@
+"""
+Classes responsible for storing configuration for the script formatter.
+"""
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Tuple

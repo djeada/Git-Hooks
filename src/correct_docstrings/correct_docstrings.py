@@ -1,16 +1,9 @@
+"""
+Main module for the script.
+"""
 import sys
-from abc import ABC
-from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Tuple
-
-from src.correct_docstrings.utils.config import (
-    DocstringFormatterConfig,
-    ScriptFormatterConfig,
-    TypeHintFormatterConfig,
-)
-from src.correct_docstrings.utils.docstring_filters import DocstringFormatter
-from src.correct_docstrings.utils.script_filters import ScriptFormatter
+from utils.script_filters import ScriptFormatter
 
 
 def apply_formatting(path: Path) -> None:

@@ -5,8 +5,6 @@ import string
 from abc import ABC
 from typing import List, Tuple
 
-from src.correct_docstrings.utils.config import DocstringFormatterConfig
-
 
 class DocstringFilterBase(ABC):
     def format(self, content: List[str]) -> List[str]:

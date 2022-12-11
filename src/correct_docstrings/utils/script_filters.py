@@ -4,12 +4,8 @@ Global filters, applied to the whole script (text file) as opposed to a single d
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-from src.correct_docstrings.utils.config import (
-    DocstringFormatterConfig,
-    ScriptFormatterConfig,
-)
-from src.correct_docstrings.utils.docstring_filters import DocstringFormatter
-from src.correct_docstrings.utils.helpers import (
+from .docstring_filters import DocstringFormatter
+from .helpers import (
     DocstringsLocalizer,
     ParametersExtractor,
 )

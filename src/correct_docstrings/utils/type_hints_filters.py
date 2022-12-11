@@ -1,8 +1,10 @@
+"""
+Responsible for formatting type hints.
+"""
 from typing import List
 
-from src.correct_docstrings.utils.config import TypeHintFormatterConfig
-from src.correct_docstrings.utils.helpers import ParameterData
-from src.correct_docstrings.utils.script_filters import ParametersExtractor
+from .config import TypeHintFormatterConfig
+from .script_filters import ParametersExtractor
 
 
 class TypeHintsFormatter:
