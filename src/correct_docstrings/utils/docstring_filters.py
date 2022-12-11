@@ -1,6 +1,7 @@
 """
 Collection of filters for a single docstring.
 """
+import string
 from abc import ABC
 from typing import List, Tuple
 
@@ -110,6 +111,126 @@ class NoRepeatedWhitespaces(DocstringFilterBase):
                             line[: index_of_second_semicolon + 1]
                             + line_after_second_semicolon
                         )
+
+        return docstring
+
+
+class EndOfSentencePunctuation(DocstringFilterBase):
+    """
+    Docstring filter that is responsible for ensuring that each sentence ends
+    with a punctuation mark.
+    """
+
+    def __init__(self, punctuation: str = "."):
+        self.punctuation = punctuation
+
+    def format(self, docstring: List[str]) -> List[str]:
+        """
+        Makes sure that each sentence ends with a punctuation mark. If a sentence
+        spans multiple lines, the last line of the sentence is the one that ends
+        with a punctuation mark.
+
+        :param docstring: list of lines in the docstring.
+        :return: formatted list of lines in the docstring.
+        """
+
+        for i in range(len(docstring)):
+            line = docstring[i].strip()
+            if not line:
+                continue
+
+            if line.endswith(self.punctuation):
+                continue
+
+            if not any(char.isalpha() for char in line):
+                continue
+
+            if line[-1] in string.punctuation:
+                continue
+
+            if i + 1 >= len(docstring):
+                docstring[i] = docstring[i].rstrip() + self.punctuation
+                continue
+
+            j = i + 1
+            next_line = docstring[j].strip()
+
+            while not next_line and j < len(docstring):
+                next_line = docstring[j].strip()
+                j += 1
+
+            if next_line.startswith(":") or j + 1 >= len(docstring):
+                docstring[i] = docstring[i].rstrip() + self.punctuation
+
+        return docstring
+
+
+class EnsureColonInParamDescription(DocstringFilterBase):
+    """
+    Docstring filter that is responsible for ensuring that each parameter description
+    starts with ':param <param_name>:'.
+    """
+
+    def format(self, docstring: List[str]) -> List[str]:
+        """
+        Makes sure that each parameter description starts with ':param <param_name>:'.
+
+        :param docstring: list of lines in the docstring.
+        :return: formatted list of lines in the docstring.
+        """
+
+        for i, line in enumerate(docstring):
+            if not line:
+                continue
+
+            if line.strip().startswith(":param") and (
+                line.count(":") == 1 or len(line.strip().split(":")[1].split(" ")) != 2
+            ):
+                j = line.index(":")
+                # find the second word in the line after j and add a colon after it
+                j += line[j + 1 :].index(" ") + 1
+                j += line[j + 1 :].index(" ") + 1
+                docstring[i] = line[:j] + line[j:].replace(" ", ": ", 1)
+
+            while "::" in docstring[i]:
+                docstring[i] = docstring[i].replace("::", ":")
+
+        return docstring
+
+
+class IndentMultilineParamDescription(DocstringFilterBase):
+    def __init__(self, indentation: str = " " * 2):
+        self.indentation = indentation
+
+    def format(self, docstring: List[str]) -> List[str]:
+
+        for i, line in enumerate(docstring):
+            if not line:
+                continue
+
+            next_line = docstring[i + 1] if i + 1 < len(docstring) else None
+            if not next_line:
+                continue
+
+            j = 0
+            while line.strip().startswith(
+                ":param"
+            ) and not next_line.strip().startswith(":"):
+                j += 1
+                next_line = docstring[i + j] if i + j < len(docstring) else None
+
+                if not next_line or next_line.strip().startswith(":"):
+                    j -= 1
+                    break
+
+            default_indentation = " " * (len(line) - len(line.lstrip()))
+            for k in range(j):
+                index = i + k + 1
+                if index >= len(docstring):
+                    break
+                docstring[index] = (
+                    default_indentation + self.indentation + docstring[index].lstrip()
+                )
 
         return docstring
 
@@ -231,6 +352,9 @@ class DocstringFormatter:
             NoRepeatedWhitespaces(),
             RemoveUnwantedPrefixes(),
             ThirdPersonConverter(),
+            EndOfSentencePunctuation(),
+            EnsureColonInParamDescription(),
+            IndentMultilineParamDescription(),
         ]
 
     def format(self, docstring) -> str:
