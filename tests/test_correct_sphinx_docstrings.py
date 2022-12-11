@@ -1,14 +1,11 @@
 from pathlib import Path
 
-from src.correct_docstrings import (
-    ScriptFormatter,
-    ScriptFormatterConfig,
-    TypeHintsFormatter,
-    TypeHintFormatterConfig,
-    ThirdPersonConverter,
-    DocstringFormatter,
-    DocstringFormatterConfig,
-)
+from src.correct_docstrings.utils.config import DocstringFormatterConfig, ScriptFormatterConfig, TypeHintFormatterConfig
+from src.correct_docstrings.utils.docstring_filters import DocstringFormatter, ThirdPersonConverter, \
+    EmptyLineBetweenDescriptionAndParams, RemoveUnwantedPrefixes, NoRepeatedWhitespaces
+from src.correct_docstrings.utils.script_filters import ScriptFormatter, AddMissingDocstrings, PreserveParameterOrder, \
+    DocstringsLocalizer
+from src.correct_docstrings.utils.type_hints_filters import TypeHintsFormatter
 
 
 def test_assert_empty_line_between_description_and_param_list():
@@ -23,9 +20,9 @@ def test_assert_empty_line_between_description_and_param_list():
         '    """',
     ]
     expected = docstring
-    formatter = DocstringFormatter(DocstringFormatterConfig(docstring))
+    formatter = EmptyLineBetweenDescriptionAndParams()
 
-    result = formatter.empty_line_between_description_and_param_list()
+    result = formatter.format(docstring)
     assert result == expected
 
     # missing empty line between description and param list
@@ -46,9 +43,9 @@ def test_assert_empty_line_between_description_and_param_list():
         "    :return: description of return value",
         '    """',
     ]
-    formatter = DocstringFormatter(DocstringFormatterConfig(docstring))
+    formatter = EmptyLineBetweenDescriptionAndParams()
 
-    result = formatter.empty_line_between_description_and_param_list()
+    result = formatter.format(docstring)
     assert result == expected
 
     # multiple empty lines between description and param list
@@ -72,9 +69,9 @@ def test_assert_empty_line_between_description_and_param_list():
         "    :return: description of return value",
         '    """',
     ]
-    formatter = DocstringFormatter(DocstringFormatterConfig(docstring))
+    formatter = EmptyLineBetweenDescriptionAndParams()
 
-    result = formatter.empty_line_between_description_and_param_list()
+    result = formatter.format(docstring)
     assert result == expected
 
 
@@ -97,8 +94,8 @@ def test_assert_no_unnecessary_prefixes():
         "    :return: description of return value",
         '    """',
     ]
-    formatter = DocstringFormatter(DocstringFormatterConfig(docstring))
-    result = formatter.no_unnecessary_prefixes()
+    formatter = RemoveUnwantedPrefixes()
+    result = formatter.format(docstring)
     assert result == expected
 
 
@@ -121,8 +118,8 @@ def test_assert_single_whitespace_after_second_semicolon():
         "    :return: Description of return value",
         '    """',
     ]
-    formatter = DocstringFormatter(DocstringFormatterConfig(docstring))
-    result = formatter.single_whitespace_after_second_semicolon()
+    formatter = NoRepeatedWhitespaces()
+    result = formatter.format(docstring)
     assert result == expected
 
 
@@ -157,15 +154,14 @@ def test_find_next_docstring():
         some_other_function()
 
     '''
-    formatter = ScriptFormatter(ScriptFormatterConfig(Path()))
-    formatter.content = file_content
+    localizer = DocstringsLocalizer(file_content.split("\n"))
 
     expected = (5, 10)
-    result = formatter.find_next_docstring(0)
+    result = localizer.find_next_docstring(0)
     assert result == expected
 
     expected = (17, 22)
-    result = formatter.find_next_docstring(11)
+    result = localizer.find_next_docstring(11)
     assert result == expected
 
 
@@ -180,8 +176,8 @@ def test_convert_to_third_person():
         '    """',
     ]
     expected = docstring
-    converter = ThirdPersonConverter(docstring)
-    result = converter.convert()
+    converter = ThirdPersonConverter()
+    result = converter.format(docstring)
     assert result == expected
 
     docstring = [
@@ -204,8 +200,8 @@ def test_convert_to_third_person():
         "    :return: description of return value",
         '    """',
     ]
-    converter = ThirdPersonConverter(docstring)
-    result = converter.convert()
+    converter = ThirdPersonConverter()
+    result = converter.format(docstring)
     for expected_line, result_line in zip(result, expected):
         assert expected_line == result_line
 
@@ -263,9 +259,8 @@ def test_add_missing_docstring():
         some_function(1, 2)
         some_other_function(1, 2, 3)
     '''
-    formatter = ScriptFormatter(ScriptFormatterConfig(Path()))
-    formatter.content = file_content
-    content_as_list = formatter.add_missing_docstrings()
+    formatter = AddMissingDocstrings()
+    content_as_list = formatter.format(file_content.split("\n"))
 
     result = "\n".join(content_as_list)
     for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
@@ -373,9 +368,8 @@ def test_preserve_parameter_order():
         some_function(1, 2)
         some_other_function(1, 2, 3)
     """
-    formatter = ScriptFormatter(ScriptFormatterConfig(Path()))
-    formatter.content = file_content
-    content_as_list = formatter.preserve_parameter_order()
+    formatter = PreserveParameterOrder()
+    content_as_list = formatter.format(file_content.split("\n"))
 
     result = "\n".join(content_as_list)
     for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
