@@ -3,12 +3,8 @@ Main module for the script.
 """
 import difflib
 import argparse
-import temppathlib
 from pathlib import Path
 from utils.script_filters import ScriptFormatter
-
-# TODO:
-# 1. add ignored verbs
 
 
 class ScriptArguments(argparse.ArgumentParser):

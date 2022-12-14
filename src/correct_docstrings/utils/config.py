@@ -7,7 +7,7 @@ from typing import List, Tuple
 
 # which filters to use
 # what configuration to use for each filter
-
+# add ignored verbs
 
 @dataclass
 class DocstringFormatterConfig:
