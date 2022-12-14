@@ -194,7 +194,7 @@ class DocstringFormatterConfig:
         return tuple([verb for verb in self._verbs if verb not in self.ignored_verbs])
 
     @classmethod
-    def from_json(cls, json_path: Path) -> "DocstringStyle":
+    def from_json(cls, json_path: Path) -> "DocstringFormatterConfig":
         """
         Creates a new instance from a JSON file.
 
