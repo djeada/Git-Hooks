@@ -11,7 +11,7 @@ class TypeHintsFormatter:
     Responsible for formatting type hints.
     """
 
-    def optional_type_hints(self, content:  List[str]) -> List[str]:
+    def optional_type_hints(self, content: List[str]) -> List[str]:
         """
         Finds parameters with default value None and add Optional[type] to them.
 
@@ -36,8 +36,8 @@ class TypeHintsFormatter:
                 # add Optional[type] to parameters with default value None
                 for parameter in parameters:
                     if (
-                            parameter.default_value == "None"
-                            and not parameter.type_hint.startswith("Optional")
+                        parameter.default_value == "None"
+                        and not parameter.type_hint.startswith("Optional")
                     ):
                         parameter.type_hint = "Optional[" + parameter.type_hint + "]"
 

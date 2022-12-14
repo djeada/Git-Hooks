@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Tuple
 
+# which filters to use
+# what configuration to use for each filter
+
 
 @dataclass
 class DocstringFormatterConfig:

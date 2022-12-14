@@ -7,26 +7,43 @@ from typing import List, Tuple
 
 
 class DocstringFilterBase(ABC):
+    """
+    Base class for docstring filters.
+    """
+
     def format(self, content: List[str]) -> List[str]:
         """
         Formats the content.
 
-        :param content: list of lines in the file.
-        :return: formatted list of lines in the file.
+        :param content: list of lines in the docstring.
+        :return: formatted list of lines in the docstring.
         """
         pass
 
 
 class EmptyLineBetweenDescriptionAndParams(DocstringFilterBase):
     """
-    make sure empty line between description and list of params
-    find first param in docstring and check if there is description above it
-    if so, make sure that there is empty line between description and param list
+    Docstring filter that makes sure that there is an empty line between description and params.
 
-    :return: list of lines in docstring
+    Example:
+        Description of the function.
+        :param x: some description
+        :return: some description
+
+    will be changed to:
+        Description of the function.
+
+        :param x: some description
+        :return: some description
     """
 
-    def format(self, docstring: List[str]):
+    def format(self, docstring: List[str]) -> List[str]:
+        """
+        Makes sure that there is an empty line between description and params.
+
+        :param docstring: list of lines in docstring
+        :return: list of lines in docstring
+        """
         prefixes = [":param", ":return", ":raises"]
         start_of_param_list = -1
         docstring = docstring.copy()
@@ -58,11 +75,24 @@ class EmptyLineBetweenDescriptionAndParams(DocstringFilterBase):
 
 class RemoveUnwantedPrefixes(DocstringFilterBase):
     """
-    Make sure that lines that contain :param or :return or :raises are prefixed with ": "
-       and there are no unnecessary prefixes, only whitespace is allowed before the prefix
+    Docstring filter that removes unwanted prefixes from the docstring.
+
+    Example:
+     .. :param x: some description
+        ,:return: some description
+
+    will be changed to:
+        :param x: some description
+        :return: some description
     """
 
     def format(self, docstring: List[str]) -> List[str]:
+        """
+        Removes unwanted prefixes from the docstring.
+
+        :param docstring: list of lines in docstring
+        :return: list of lines in docstring
+        """
         prefixes = [":param", ":return", ":raises"]
 
         for i in range(len(docstring)):
@@ -80,7 +110,25 @@ class RemoveUnwantedPrefixes(DocstringFilterBase):
 
 
 class NoRepeatedWhitespaces(DocstringFilterBase):
+    """
+    Docstring filter that removes repeated whitespaces from the docstring.
+
+    Example:
+        :param x:     some description
+        :return: some description
+
+    will be changed to:
+        :param x: some description
+        :return: some description
+    """
+
     def format(self, docstring: List[str]) -> List[str]:
+        """
+        Removes repeated whitespaces from the docstring.
+
+        :param docstring: list of lines in docstring
+        :return: list of lines in docstring
+        """
         prefixes = [":param", ":return", ":raises"]
         for i in range(len(docstring)):
             line = docstring[i]
@@ -117,6 +165,16 @@ class EndOfSentencePunctuation(DocstringFilterBase):
     """
     Docstring filter that is responsible for ensuring that each sentence ends
     with a punctuation mark.
+
+    :param punctuation: punctuation mark to be used.
+
+    Example:
+        :param x: some description
+        :return: some description
+
+    will be changed to:
+        :param x: some description.
+        :return: some description.
     """
 
     def __init__(self, punctuation: str = "."):
@@ -167,6 +225,14 @@ class EnsureColonInParamDescription(DocstringFilterBase):
     """
     Docstring filter that is responsible for ensuring that each parameter description
     starts with ':param <param_name>:'.
+
+    Example:
+        :param x some description
+        :return: some description
+
+    will be changed to:
+        :param x: some description
+        :return: some description
     """
 
     def format(self, docstring: List[str]) -> List[str]:
@@ -197,10 +263,32 @@ class EnsureColonInParamDescription(DocstringFilterBase):
 
 
 class IndentMultilineParamDescription(DocstringFilterBase):
+    """
+    Docstring filter that is responsible for indenting multiline parameter descriptions.
+
+    :param indentation: indentation to be used.
+
+    Example:
+        :param x: some description
+        that spans multiple lines
+        :return: some description
+
+    will be changed to:
+        :param x: some description
+          that spans multiple lines
+        :return: some description
+    """
+
     def __init__(self, indentation: str = " " * 2):
         self.indentation = indentation
 
     def format(self, docstring: List[str]) -> List[str]:
+        """
+        Indents multiline parameter descriptions.
+
+        :param docstring: list of lines in the docstring.
+        :return: formatted list of lines in the docstring.
+        """
 
         for i, line in enumerate(docstring):
             if not line:
@@ -280,8 +368,23 @@ class SentenceCapitalization(DocstringFilterBase):
 
         return docstring
 
+
 class ThirdPersonConverter(DocstringFilterBase):
-    """ """
+    """
+    Docstring filter that is responsible for ensuring that every verb in the docstring
+    is in the third person.
+
+    :param blocking_words: if a verb is preceded by one of these words, it will not be changed.
+    :param modals: list of modal verbs that should not be changed.
+    :param verbs: list of words that should be changed to the third person.
+
+
+    Example:
+        Calculate the sum of two numbers.
+
+    will be changed to:
+        Calculates the sum of two numbers.
+    """
 
     def __init__(self):
         self.blocking_words = "not, to, a, an, the, for, in, of, and, or, as, if, but, nor, so, yet, at, by, from, into, like, over, after, before, between, into, through, with, without, during, without, until, up, upon, about, above, across, after, against, along, amid, among, anti, around, as, at, before, behind, below, beneath, beside, besides, between, beyond, concerning, considering, despite, down, during, except, excepting, excluding, following, for, from, in, inside, into, like, minus, near, of, off, on, onto, opposite, outside, over, past, per, plus, regarding, round, save, since, than, through, to, toward, towards, under, underneath, unlike, until, up, upon, versus, via, with, within, without".split(
@@ -292,8 +395,13 @@ class ThirdPersonConverter(DocstringFilterBase):
             ", "
         )
 
-    def format(self, docstring):
-        """ """
+    def format(self, docstring: List[str]) -> List[str]:
+        """
+        Converts the verbs in the docstring to third-person singular form.
+
+        :param docstring: list of lines in the docstring.
+        :return: formatted list of lines in the docstring.
+        """
         # check which line starts with ":"
         end_index = -1
         for i in range(len(docstring)):
@@ -371,7 +479,7 @@ class ThirdPersonConverter(DocstringFilterBase):
     @staticmethod
     def split_punctuation(word: str) -> Tuple[str, str]:
         """
-        Split word into two parts: word and punctuation
+        Splits the word into two parts: word and punctuation.
 
         :param word: word to split
         :return: word and punctuation
