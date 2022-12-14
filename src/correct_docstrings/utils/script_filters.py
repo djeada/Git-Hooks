@@ -278,9 +278,12 @@ class ScriptFormatter:
     """
 
     def __init__(
-        self, initial_filters: List[ScriptFilterBase] = [AddMissingDocstrings()]
+        self,
+        docstring_formatter,
+        initial_filters: List[ScriptFilterBase] = [AddMissingDocstrings()],
     ):
         self.initial_filters = initial_filters
+        self.docstring_formatter = docstring_formatter
 
     def format(self, content: List[str]) -> List[str]:
         """
@@ -293,13 +296,12 @@ class ScriptFormatter:
         for script_filter in self.initial_filters:
             content = script_filter.format(content)
 
-        formatter = DocstringFormatter()
         localizer = DocstringsLocalizer(content)
         start_index, end_index = localizer.find_next_docstring(0)
 
         while start_index != -1:
             docstring = content[start_index : end_index + 1]
-            formatted_docstring = formatter.format(docstring)
+            formatted_docstring = self.docstring_formatter.format(docstring)
             content[start_index : end_index + 1] = formatted_docstring
             start_index, end_index = DocstringsLocalizer(content).find_next_docstring(
                 start_index + len(formatted_docstring) + 1
