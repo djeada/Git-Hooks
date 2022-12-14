@@ -2,8 +2,6 @@ import subprocess
 from git_root import git_root
 
 
-
-
 def test_script_formatter_config(tmpdir):
     file_content = '''
     import os
@@ -72,8 +70,14 @@ def test_script_formatter_config(tmpdir):
     file_path.write(file_content)
 
     # call python script 'python correct_docstrings.py file_path' with subprocess and then check if file was changed
-    subprocess.run(["python", f"{git_root()}/src/correct_docstrings/correct_docstrings.py", file_path.strpath])
-    
+    subprocess.run(
+        [
+            "python",
+            f"{git_root()}/src/correct_docstrings/correct_docstrings.py",
+            file_path.strpath,
+        ]
+    )
+
     with open(file_path.strpath, "r") as f:
         result = f.read()
 

@@ -19,7 +19,9 @@ def test_assert_optional_type_hints():
     if __name__ == '__main__':
         some_function(1, 2)
         some_other_function(1, 2, 3)
-     """.split("\n")
+     """.split(
+        "\n"
+    )
 
     expected = """
     import os
@@ -38,7 +40,9 @@ def test_assert_optional_type_hints():
     if __name__ == '__main__':
         some_function(1, 2)
         some_other_function(1, 2, 3)
-    """.split("\n")
+    """.split(
+        "\n"
+    )
 
     formatter = TypeHintsFormatter()
     result = formatter.optional_type_hints(file_content)

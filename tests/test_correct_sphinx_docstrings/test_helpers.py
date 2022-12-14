@@ -1,12 +1,7 @@
-from pathlib import Path
-
-from src.correct_docstrings.utils.config import DocstringFormatterConfig, ScriptFormatterConfig, TypeHintFormatterConfig
-from src.correct_docstrings.utils.docstring_filters import DocstringFormatter, ThirdPersonConverter, \
-    EmptyLineBetweenDescriptionAndParams, RemoveUnwantedPrefixes, NoRepeatedWhitespaces
 from src.correct_docstrings.utils.helpers import ParametersExtractor, ParameterData
-from src.correct_docstrings.utils.script_filters import ScriptFormatter, AddMissingDocstrings, PreserveParameterOrder, \
-    DocstringsLocalizer
-from src.correct_docstrings.utils.type_hints_filters import TypeHintsFormatter
+from src.correct_docstrings.utils.script_filters import (
+    DocstringsLocalizer,
+)
 
 
 def test_find_next_docstring():
@@ -52,6 +47,7 @@ def test_find_next_docstring():
     result = localizer.find_next_docstring(13)
     assert result == expected
 
+
 def test_parameter_extractor():
     # all parameters in a single line
 
@@ -61,7 +57,9 @@ def test_parameter_extractor():
         Docstrings shouldn't be touched.
         \"\"\"    
         return param_a + param_b
-    """.split("\n")
+    """.split(
+        "\n"
+    )
 
     extractor = ParametersExtractor(function_in_code)
     parameters = extractor.extract_parameters()
@@ -86,7 +84,9 @@ def test_parameter_extractor():
         \"\"\"
         return param_a + param_b + param_c
 
-    """.split("\n")
+    """.split(
+        "\n"
+    )
 
     extractor = ParametersExtractor(function_in_code)
     parameters = extractor.extract_parameters()
@@ -126,7 +126,9 @@ def test_parameter_extractor():
         \"\"\"
         return param_a + param_b + param_c
 
-    """.split("\n")
+    """.split(
+        "\n"
+    )
 
     extractor = ParametersExtractor(function_in_code)
     parameters = extractor.extract_parameters()
@@ -151,7 +153,9 @@ def test_replace_parameters():
         Docstrings shouldn't be touched.
         \"\"\"
         return param_a + param_b
-    """.split("\n")
+    """.split(
+        "\n"
+    )
 
     expected = """
     def some_function(param_1: int, param_2: str = "default"):
@@ -159,9 +163,14 @@ def test_replace_parameters():
         Docstrings shouldn't be touched.
         \"\"\"
         return param_a + param_b
-    """.split("\n")
+    """.split(
+        "\n"
+    )
 
-    new_parameters = [ParameterData("param_1", "int"), ParameterData("param_2", "str", '"default"')]
+    new_parameters = [
+        ParameterData("param_1", "int"),
+        ParameterData("param_2", "str", '"default"'),
+    ]
     formatter = ParametersExtractor(file_content)
 
     result = formatter.replace_parameters(new_parameters)
@@ -180,7 +189,9 @@ def test_replace_parameters():
         Docstrings shouldn't be touched.
         \"\"\"
         return param_a + param_b + param_c
-    """.split("\n")
+    """.split(
+        "\n"
+    )
 
     expected = """
     def some_other_function(
@@ -192,7 +203,9 @@ def test_replace_parameters():
         Docstrings shouldn't be touched.
         \"\"\"
         return param_a + param_b + param_c
-    """.split("\n")
+    """.split(
+        "\n"
+    )
 
     new_parameters = [
         ParameterData("param_1", "int"),

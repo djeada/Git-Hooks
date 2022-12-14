@@ -1,6 +1,15 @@
-from src.correct_docstrings.utils.docstring_filters import DocstringFormatter, ThirdPersonConverter, \
-    EmptyLineBetweenDescriptionAndParams, RemoveUnwantedPrefixes, NoRepeatedWhitespaces, EndOfSentencePunctuation, \
-    EnsureColonInParamDescription, IndentMultilineParamDescription
+from src.correct_docstrings.utils.config import DocstringFormatterConfig
+from src.correct_docstrings.utils.docstring_filters import (
+    DocstringFormatter,
+    ThirdPersonConverter,
+    EmptyLineBetweenDescriptionAndParams,
+    RemoveUnwantedPrefixes,
+    NoRepeatedWhitespaces,
+    EndOfSentencePunctuation,
+    EnsureColonInParamDescription,
+    IndentMultilineParamDescription,
+    SentenceCapitalization,
+)
 
 
 def test_assert_empty_line_between_description_and_param_list():
@@ -142,8 +151,11 @@ def test_convert_to_third_person():
         "    :return: description of return value",
         '    """',
     ]
+
+    config = DocstringFormatterConfig()
+    converter = ThirdPersonConverter(config.blocking_words, config.modals, config.verbs)
+
     expected = docstring
-    converter = ThirdPersonConverter()
     result = converter.format(docstring)
     assert result == expected
 
@@ -167,7 +179,9 @@ def test_convert_to_third_person():
         "    :return: description of return value",
         '    """',
     ]
-    converter = ThirdPersonConverter()
+    config = DocstringFormatterConfig()
+    converter = ThirdPersonConverter(config.blocking_words, config.modals, config.verbs)
+
     result = converter.format(docstring)
     for expected_line, result_line in zip(result, expected):
         assert expected_line == result_line
@@ -346,7 +360,16 @@ def test_docstring_formatter():
         "    :return: Description of return value.",
         '    """',
     ]
-    formatter = DocstringFormatter()
+    docstring_filters = [
+        EmptyLineBetweenDescriptionAndParams(),
+        NoRepeatedWhitespaces(),
+        RemoveUnwantedPrefixes(),
+        EndOfSentencePunctuation(),
+        EnsureColonInParamDescription(),
+        IndentMultilineParamDescription(),
+        SentenceCapitalization(),
+    ]
+    formatter = DocstringFormatter(docstring_filters)
     result = formatter.format(docstring)
     for expected_line, result_line in zip(result, expected):
         assert expected_line == result_line

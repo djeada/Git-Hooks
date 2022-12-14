@@ -4,7 +4,13 @@ Main module for the script.
 import difflib
 import argparse
 from pathlib import Path
+
+from utils.docstring_filters import DocstringFormatter
+from utils.config import DocstringFormatterConfig
 from utils.script_filters import ScriptFormatter
+
+
+CONFIG_PATH = Path(__file__).parent / "correct_docstrings_config.json"
 
 
 class ScriptArguments(argparse.ArgumentParser):
@@ -30,6 +36,20 @@ class ScriptArguments(argparse.ArgumentParser):
         )
 
 
+def ensure_config_file_exists() -> None:
+    """
+    Checks if config file exists, if not, creates it.
+    If the user doesn't have permissions to create the file, throws an exception.
+    """
+    if not CONFIG_PATH.exists():
+        config = DocstringFormatterConfig()
+        try:
+            config.to_json(CONFIG_PATH)
+        except PermissionError:
+            print("Unable to create config file!")
+            exit(-1)
+
+
 def apply_formatting(path: Path, in_place=True) -> bool:
     """
     Applies formatting to the file.
@@ -39,8 +59,10 @@ def apply_formatting(path: Path, in_place=True) -> bool:
     :return: True if the file needed changes, False otherwise.
     """
     file_content = path.read_text().splitlines()
-    formatter = ScriptFormatter()
-    result = formatter.format(file_content.copy())
+    config = DocstringFormatterConfig.from_json(CONFIG_PATH)
+    docstrings_formatter = DocstringFormatter(config.filters)
+    script_formatter = ScriptFormatter(docstrings_formatter)
+    result = script_formatter.format(file_content.copy())
 
     if in_place:
         path.write_text("\n".join(result))
@@ -55,6 +77,7 @@ def apply_formatting(path: Path, in_place=True) -> bool:
 
 
 def main():
+    """ """
     args = ScriptArguments().parse_args()
 
     if not args.file_name:
@@ -68,6 +91,9 @@ def main():
     if not path.exists():
         print("Provided path is not valid!")
         exit(-1)
+
+    # check if config file exists
+    ensure_config_file_exists()
 
     changes_needed_flag = False
 

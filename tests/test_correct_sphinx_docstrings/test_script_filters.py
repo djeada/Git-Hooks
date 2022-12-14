@@ -1,4 +1,19 @@
-from src.correct_docstrings.utils.script_filters import ScriptFormatter, AddMissingDocstrings, PreserveParameterOrder
+from src.correct_docstrings.utils.docstring_filters import (
+    DocstringFormatter,
+    EmptyLineBetweenDescriptionAndParams,
+    NoRepeatedWhitespaces,
+    RemoveUnwantedPrefixes,
+    EndOfSentencePunctuation,
+    EnsureColonInParamDescription,
+    IndentMultilineParamDescription,
+    SentenceCapitalization,
+)
+from src.correct_docstrings.utils.script_filters import (
+    ScriptFormatter,
+    AddMissingDocstrings,
+    PreserveParameterOrder,
+)
+
 
 def test_add_missing_docstring():
     file_content = """import os
@@ -17,7 +32,9 @@ def test_add_missing_docstring():
     if __name__ == '__main__':
         some_function(1, 2)
         some_other_function(1, 2, 3)
-    """.split("\n")
+    """.split(
+        "\n"
+    )
 
     expected = '''"""
     """
@@ -53,7 +70,9 @@ def test_add_missing_docstring():
     if __name__ == '__main__':
         some_function(1, 2)
         some_other_function(1, 2, 3)
-    '''.split("\n")
+    '''.split(
+        "\n"
+    )
     formatter = AddMissingDocstrings()
     result = formatter.format(file_content)
 
@@ -86,7 +105,9 @@ def test_add_missing_docstring():
         sc.some_function(1, 2)
         sc.some_other_function(1, 2, 3)
 
-    """.split("\n")
+    """.split(
+        "\n"
+    )
 
     expected = '''"""
     """
@@ -137,14 +158,15 @@ def test_add_missing_docstring():
         sc.some_function(1, 2)
         sc.some_other_function(1, 2, 3)
 
-    '''.split("\n")
+    '''.split(
+        "\n"
+    )
 
     formatter = AddMissingDocstrings()
     result = formatter.format(file_content)
 
     for line_result, line_expected in zip(result, expected):
         assert line_result.strip() == line_expected.strip()
-        
 
 
 def test_preserve_parameter_order():
@@ -211,7 +233,6 @@ def test_preserve_parameter_order():
         assert line_result.strip() == line_expected.strip()
 
 
-
 def test_script_formatter_config(tmpdir):
     file_content = '''import os
     import sys
@@ -240,7 +261,9 @@ def test_script_formatter_config(tmpdir):
         some_function()
         some_other_function()
 
-    '''.split("\n")
+    '''.split(
+        "\n"
+    )
 
     expected = '''"""
     """
@@ -274,12 +297,23 @@ def test_script_formatter_config(tmpdir):
         some_function()
         some_other_function()
 
-    '''.split("\n")
+    '''.split(
+        "\n"
+    )
 
     file_path = tmpdir.join("test.py")
     file_path.write(file_content)
-
-    formatter = ScriptFormatter()
-    result = formatter.format(file_content)
+    docstring_filters = [
+        EmptyLineBetweenDescriptionAndParams(),
+        NoRepeatedWhitespaces(),
+        RemoveUnwantedPrefixes(),
+        EndOfSentencePunctuation(),
+        EnsureColonInParamDescription(),
+        IndentMultilineParamDescription(),
+        SentenceCapitalization(),
+    ]
+    docstring_formatter = DocstringFormatter(docstring_filters)
+    script_formatter = ScriptFormatter(docstring_formatter)
+    result = script_formatter.format(file_content)
     for line_result, line_expected in zip(result, expected):
         assert line_result.strip() == line_expected.strip()
