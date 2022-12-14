@@ -1,4 +1,3 @@
-from src.correct_docstrings.utils.config import TypeHintFormatterConfig
 from src.correct_docstrings.utils.type_hints_filters import TypeHintsFormatter
 
 
@@ -20,7 +19,7 @@ def test_assert_optional_type_hints():
     if __name__ == '__main__':
         some_function(1, 2)
         some_other_function(1, 2, 3)
-     """
+     """.split("\n")
 
     expected = """
     import os
@@ -39,11 +38,10 @@ def test_assert_optional_type_hints():
     if __name__ == '__main__':
         some_function(1, 2)
         some_other_function(1, 2, 3)
-    """
+    """.split("\n")
 
-    formatter = TypeHintsFormatter(TypeHintFormatterConfig(file_content))
-    content_as_list = formatter.optional_type_hints()
+    formatter = TypeHintsFormatter()
+    result = formatter.optional_type_hints(file_content)
 
-    result = "\n".join(content_as_list)
-    for line_result, line_expected in zip(result.split("\n"), expected.split("\n")):
+    for line_result, line_expected in zip(result, expected):
         assert line_result.strip() == line_expected.strip()

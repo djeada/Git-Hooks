@@ -101,7 +101,7 @@ class NoRepeatedWhitespaces(DocstringFilterBase):
                         if len(line_after_second_semicolon) > 1:
                             line_after_second_semicolon = (
                                 " "
-                                + line_after_second_semicolon[0].upper()
+                                + line_after_second_semicolon[0]
                                 + line_after_second_semicolon[1:]
                             )
 
@@ -233,6 +233,53 @@ class IndentMultilineParamDescription(DocstringFilterBase):
         return docstring
 
 
+class SentenceCapitalization(DocstringFilterBase):
+    """
+    Docstring filter that is responsible for ensuring that each sentence starts
+    with a capital letter.
+    """
+
+    def format(self, docstring: List[str]) -> List[str]:
+        """
+        Makes sure that each sentence starts with a capital letter. If a sentence
+        spans multiple lines, the first line of the sentence is the one that starts
+        with a capital letter.
+
+        :param docstring: list of lines in the docstring.
+        :return: formatted list of lines in the docstring.
+        """
+
+        prefixes = [":param", ":return", ":raises"]
+        for i in range(len(docstring)):
+            line = docstring[i]
+            for prefix in prefixes:
+                index = line.find(prefix)
+                if index != -1:
+                    index_of_second_semicolon = line.find(":", index + len(prefix))
+                    if index_of_second_semicolon != -1:
+                        line_after_second_semicolon = line[
+                            index_of_second_semicolon + 1 :
+                        ]
+
+                        while line_after_second_semicolon.startswith(" "):
+                            line_after_second_semicolon = line_after_second_semicolon[
+                                1:
+                            ]
+
+                        if len(line_after_second_semicolon) > 1:
+                            line_after_second_semicolon = (
+                                " "
+                                + line_after_second_semicolon[0].upper()
+                                + line_after_second_semicolon[1:]
+                            )
+
+                        docstring[i] = (
+                            line[: index_of_second_semicolon + 1]
+                            + line_after_second_semicolon
+                        )
+
+        return docstring
+
 class ThirdPersonConverter(DocstringFilterBase):
     """ """
 
@@ -349,10 +396,11 @@ class DocstringFormatter:
             EmptyLineBetweenDescriptionAndParams(),
             NoRepeatedWhitespaces(),
             RemoveUnwantedPrefixes(),
-            ThirdPersonConverter(),
+            # ThirdPersonConverter(),
             EndOfSentencePunctuation(),
             EnsureColonInParamDescription(),
             IndentMultilineParamDescription(),
+            SentenceCapitalization(),
         ]
 
     def format(self, docstring) -> str:

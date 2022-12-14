@@ -1,4 +1,3 @@
-
 from src.correct_docstrings.utils.docstring_filters import DocstringFormatter, ThirdPersonConverter, \
     EmptyLineBetweenDescriptionAndParams, RemoveUnwantedPrefixes, NoRepeatedWhitespaces, EndOfSentencePunctuation, \
     EnsureColonInParamDescription, IndentMultilineParamDescription
@@ -119,11 +118,11 @@ def test_assert_single_whitespace_after_second_semicolon():
         '   """',
         "    Description",
         "",
-        "    :param param1: Description of param1",
-        "    :param param2: Multiline description ",
+        "    :param param1: description of param1",
+        "    :param param2: multiline description ",
         "      of param2",
-        "    :param param3: Description of param3",
-        "    :return: Description of return value",
+        "    :param param3: description of param3",
+        "    :return: description of return value",
         '    """',
     ]
     formatter = NoRepeatedWhitespaces()
@@ -175,8 +174,6 @@ def test_convert_to_third_person():
 
 
 def test_end_of_sentence_punctuation():
-
-
     docstring = [
         '   """',
         "    Description",
@@ -204,8 +201,8 @@ def test_end_of_sentence_punctuation():
     for expected_line, result_line in zip(result, expected):
         assert expected_line == result_line
 
-def test_ensure_colon_in_param_description():
 
+def test_ensure_colon_in_param_description():
     # everything fine
 
     docstring = [
@@ -265,7 +262,6 @@ def test_ensure_colon_in_param_description():
 
 
 def test_indent_multiline_param_description():
-
     docstring = [
         '   """',
         "    Description",
@@ -328,7 +324,6 @@ def test_indent_multiline_param_description():
 
 
 def test_docstring_formatter():
-
     docstring = [
         '   """',
         "    Description",

@@ -3,7 +3,6 @@ Responsible for formatting type hints.
 """
 from typing import List
 
-from .config import TypeHintFormatterConfig
 from .script_filters import ParametersExtractor
 
 
@@ -12,18 +11,15 @@ class TypeHintsFormatter:
     Responsible for formatting type hints.
     """
 
-    def __init__(self, config: TypeHintFormatterConfig):
-        self.content = config.content
-
-    def optional_type_hints(self) -> List[str]:
+    def optional_type_hints(self, content:  List[str]) -> List[str]:
         """
         Finds parameters with default value None and add Optional[type] to them.
 
-        :return: list of lines in file
+        :param content: list of lines in file
+        :return: formatted list of lines in file
         """
 
         i = 0
-        content = self.content.split("\n").copy()
         while i < len(content) - 1:
             line = content[i].strip()
 
@@ -40,8 +36,8 @@ class TypeHintsFormatter:
                 # add Optional[type] to parameters with default value None
                 for parameter in parameters:
                     if (
-                        parameter.default_value == "None"
-                        and not parameter.type_hint.startswith("Optional")
+                            parameter.default_value == "None"
+                            and not parameter.type_hint.startswith("Optional")
                     ):
                         parameter.type_hint = "Optional[" + parameter.type_hint + "]"
 
