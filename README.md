@@ -1,5 +1,5 @@
 # Git-Hooks
-A collection of useful git hooks.
+Welcome to this collection of useful Git hooks! In this repository, you will find a variety of scripts written in Bash and Python that you can use to improve your workflow and ensure that your code meets certain standards.
 
 ![Capture](https://user-images.githubusercontent.com/37275728/186116675-44002347-b151-4da6-a0f5-edd5f199d73b.PNG)
 
