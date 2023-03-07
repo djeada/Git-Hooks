@@ -407,7 +407,9 @@ class LineWrapping(DocstringFilterBase):
     """
 
     def __init__(
-        self, max_length: int, prefixes: Tuple[str] = (":param", ":return", ":raises")
+        self,
+        max_length: int = 120,
+        prefixes: Tuple[str] = (":param", ":return", ":raises"),
     ):
         self.max_length = max_length
         self.prefixes = prefixes

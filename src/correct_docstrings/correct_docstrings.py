@@ -1,9 +1,5 @@
-"""
-Main module for the script.
-"""
 import difflib
 import argparse
-import sys
 from pathlib import Path
 
 from src.correct_docstrings.utils.formatting_conditions import (
@@ -77,7 +73,7 @@ def apply_formatting(path: Path, in_place=True) -> bool:
 
     if not validator.check(file_content):
         print("Docstrings are missing or incorrect in the file.")
-        sys.exit(1)
+        return False
 
     config = DocstringFormatterConfig.from_json(CONFIG_PATH)
     docstrings_formatter = DocstringFormatter(config.filters)
@@ -97,7 +93,9 @@ def apply_formatting(path: Path, in_place=True) -> bool:
 
 
 def main():
-    """ """
+    """
+    Main module for the script.
+    """
     args = ScriptArguments().parse_args()
 
     if not args.file_name:
@@ -122,18 +120,24 @@ def main():
         changes_needed_flag = changes_needed_flag or apply_formatting(
             path, in_place=not args.diff
         )
-        return
+        if args.diff:
+            print(f"Diff for {path}:")
+        else:
+            print(f"Formatting applied to {path}.")
+    else:
+        # if it's a directory, apply formatting to all files in it
+        for current_file in path.glob("**/*"):
+            if not current_file.is_file() or not current_file.name.endswith(".py"):
+                continue
+            changes_needed_flag = changes_needed_flag or apply_formatting(
+                current_file, in_place=not args.diff
+            )
+            if args.diff:
+                print(f"Diff for {current_file}:")
+            else:
+                print(f"Formatting applied to {current_file}.")
 
-    # if it's a directory, apply formatting to all files in it
-    for current_file in path.glob("**/*"):
-        if not current_file.is_file() or not current_file.name.endswith(".py"):
-            continue
-        changes_needed_flag = changes_needed_flag or apply_formatting(
-            current_file, in_place=not args.diff
-        )
-
-    if args.check:
-        exit(1 if changes_needed_flag else 0)
+    print("Done.")
 
 
 if __name__ == "__main__":

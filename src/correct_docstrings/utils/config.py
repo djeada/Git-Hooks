@@ -158,16 +158,18 @@ class DocstringFormatterConfig:
         _filters = []
 
         if self.include_line_wrapper:
-            _filters.append(LineWrapping(self.prefixes), max_length=90)
+            _filters.append(LineWrapping(prefixes=self.prefixes, max_length=90))
 
         if self.include_empty_line_between_description_and_params:
-            _filters.append(EmptyLineBetweenDescriptionAndParams(self.prefixes))
+            _filters.append(
+                EmptyLineBetweenDescriptionAndParams(prefixes=self.prefixes)
+            )
 
         if self.include_no_repeated_whitespaces:
-            _filters.append(NoRepeatedWhitespaces(self.prefixes))
+            _filters.append(NoRepeatedWhitespaces(prefixes=self.prefixes))
 
         if self.include_remove_unwanted_prefixes:
-            _filters.append(RemoveUnwantedPrefixes(self.prefixes))
+            _filters.append(RemoveUnwantedPrefixes(prefixes=self.prefixes))
 
         if self.include_third_person_converter:
             _filters.append(
@@ -184,7 +186,7 @@ class DocstringFormatterConfig:
             _filters.append(IndentMultilineParamDescription(self.indentation))
 
         if self.include_sentence_capitalization:
-            _filters.append(SentenceCapitalization(self.prefixes))
+            _filters.append(SentenceCapitalization(prefixes=self.prefixes))
 
         return _filters
 
