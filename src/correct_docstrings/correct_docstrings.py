@@ -8,6 +8,8 @@ from src.correct_docstrings.utils.formatting_conditions import (
     ModuleDocstringFilter,
     PublicClassDocstringFilter,
     PublicFunctionDocstringFilter,
+    PublicFunctionParameterDocstringFilter,
+    PublicFunctionParameterMismatchFilter,
 )
 from utils.docstring_filters import DocstringFormatter
 from utils.config import DocstringFormatterConfig, ensure_config_file_exists
@@ -55,6 +57,8 @@ def apply_formatting(path: Path, in_place=True) -> bool:
             ModuleDocstringFilter,
             PublicClassDocstringFilter,
             PublicFunctionDocstringFilter,
+            PublicFunctionParameterDocstringFilter,
+            PublicFunctionParameterMismatchFilter,
         ]
     )
 

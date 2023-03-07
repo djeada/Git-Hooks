@@ -14,7 +14,7 @@ class FormattingConditionFilterBase(ABC):
         """
         Checks the content.
 
-        :param content: list of lines in the docstring.
+        :param content: list of content in the docstring.
         :return: True if everything is fine, else otherwise.
         """
         pass
@@ -96,10 +96,8 @@ class PublicFunctionParameterDocstringFilter(FormattingConditionFilterBase):
         :param content: Text of Python script.
         :return: True if all public functions have parameter descriptions, else False.
         """
-        lines = content.split("\n")
-        func_name = None
-        for i in range(len(lines) - 1):
-            line = lines[i].strip()
+        for i in range(len(content) - 1):
+            line = content[i].strip()
             if line.startswith("def"):
                 func_name = line.split()[1].split("(")[0]
                 if not func_name.startswith("_"):
@@ -107,19 +105,36 @@ class PublicFunctionParameterDocstringFilter(FormattingConditionFilterBase):
                     end_index = i
                     while not line.endswith(":"):
                         end_index += 1
-                        line = lines[end_index].strip()
+                        line = content[end_index].strip()
 
                     extractor = ParametersExtractor(content)
-                    parameters = extractor.extract_parameters(i, end_index)
+                    function_parameters = extractor.extract_parameters(i, end_index)
+
                     next_line = end_index + 1
-                    if next_line < len(lines) and lines[next_line].strip().startswith(
-                        '"""'
-                    ):
-                        docstring = lines[next_line].strip()
-                        for parameter in parameters:
-                            if parameter not in docstring:
-                                # Parameter is missing from docstring
-                                return False
+                    if next_line < len(content) and content[
+                        next_line
+                    ].strip().startswith('"""'):
+                        docstring_content = []
+                        description_started = False
+                        for j in range(next_line, len(content)):
+                            docstring_line = content[j].strip()
+                            if not description_started and docstring_line.startswith(
+                                '"""'
+                            ):
+                                description_started = True
+                            elif description_started and docstring_line.endswith('"""'):
+                                break
+                            elif description_started:
+                                docstring_content.append(docstring_line)
+
+                        docstring = " ".join(docstring_content).strip()
+                        docstring_parameters = re.findall(r":param ([^:]+):", docstring)
+                        if not set(
+                            [parameter.name for parameter in function_parameters]
+                        ).issubset(set(docstring_parameters)):
+
+                            # Parameter mismatch between docstring and function signature
+                            return False
         return True
 
 
@@ -133,10 +148,9 @@ class PublicFunctionParameterMismatchFilter(FormattingConditionFilterBase):
         :return: True if all public function parameters match their docstring
         descriptions, else False.
         """
-        lines = content.split("\n")
         func_name = None
-        for i in range(len(lines) - 1):
-            line = lines[i].strip()
+        for i in range(len(content) - 1):
+            line = content[i].strip()
             if line.startswith("def"):
                 func_name = line.split()[1].split("(")[0]
                 if not func_name.startswith("_"):
@@ -144,19 +158,19 @@ class PublicFunctionParameterMismatchFilter(FormattingConditionFilterBase):
                     end_index = i
                     while not line.endswith(":"):
                         end_index += 1
-                        line = lines[end_index].strip()
+                        line = content[end_index].strip()
 
                     extractor = ParametersExtractor(content)
                     function_parameters = extractor.extract_parameters(i, end_index)
 
                     next_line = end_index + 1
-                    if next_line < len(lines) and lines[next_line].strip().startswith(
-                        '"""'
-                    ):
-                        docstring_lines = []
+                    if next_line < len(content) and content[
+                        next_line
+                    ].strip().startswith('"""'):
+                        docstring_content = []
                         description_started = False
-                        for j in range(next_line, len(lines)):
-                            docstring_line = lines[j].strip()
+                        for j in range(next_line, len(content)):
+                            docstring_line = content[j].strip()
                             if not description_started and docstring_line.startswith(
                                 '"""'
                             ):
@@ -164,11 +178,13 @@ class PublicFunctionParameterMismatchFilter(FormattingConditionFilterBase):
                             elif description_started and docstring_line.endswith('"""'):
                                 break
                             elif description_started:
-                                docstring_lines.append(docstring_line)
+                                docstring_content.append(docstring_line)
 
-                        docstring = " ".join(docstring_lines).strip()
+                        docstring = " ".join(docstring_content).strip()
                         docstring_parameters = re.findall(r":param ([^:]+):", docstring)
-                        if set(docstring_parameters) != set(function_parameters):
+                        if not set(docstring_parameters).issubset(
+                            set([parameter.name for parameter in function_parameters])
+                        ):
                             # Parameter mismatch between docstring and function signature
                             return False
         return True
@@ -190,7 +206,7 @@ class FormattingConditionValidator:
         Applies the formatting condition filters to the content and returns True
         if everything passes, else False.
 
-        :param content: list of lines in the content.
+        :param content: list of content in the content.
         :return: True if everything passes, else False.
         """
 

@@ -4,73 +4,101 @@ from git_root import git_root
 
 def test_script_formatter_config(tmpdir):
     file_content = '''
-    import os
-    import sys
+"""
+This module contains a simple class and a main function to demonstrate its use.
 
-    def some_function():
-        """
-        Description
-        :param param1: description of param1
-        :param param2: description of param2
-          is multiline.
-        :param param3: description of param 3
-        :return: description of return value
-        """
-        return
+.. moduleauthor: Your Name <your.email@example.com>
+"""
 
-    def some_other_function():
-        """
-        Description
-        :param param1:      description of param1
-     .  :param param2: description of param2
-        :return: description of return value
-        """
-        return
+class Rectangle:
+    """
+    A class representing a rectangle.
 
-    if __name__ == '__main__':
-        some_function()
-        some_other_function()
+    :ivar length: The length of the rectangle.
+    :ivar width: The width of the rectangle.
+    """
 
+    def __init__(self, length: float, width: float) -> None:
+        """
+        Initializes a new Rectangle instance.
+
+        :param length: The length of the rectangle.
+        :param width: The width of the rectangle.
+          """
+        self.length = length
+        self.width = width
+
+    def area(self) -> float:
+        """
+        Calculates the area of the rectangle.
+
+        :return: The area of the rectangle.
+        :rtype: float.
+        """
+        return self.length * self.width
+
+def main() -> None:
+    """
+    Creates a Rectangle instance, calculates its area, and prints the result.
+    """
+    rectangle = Rectangle(5, 10)
+    area = rectangle.area()
+    print(f"The area of the rectangle is {area}.")
+
+if __name__ == '__main__':
+    main()
     '''
 
-    expected = '''"""
+    expected = '''
+"""
+This module contains a simple class and a main function to demonstrate its use.
+
+.. moduleauthor: Your Name <your.email@example.com>
+"""
+
+class Rectangle:
     """
-    
-    import os
-    import sys
+    A class representing a rectangle.
 
-    def some_function():
+    :ivar length: The length of the rectangle.
+    :ivar width: The width of the rectangle.
+    """
+
+    def __init__(self, length: float, width: float) -> None:
         """
-        Description.
+        Initializes a new Rectangle instance.
 
-        :param param1: Description of param1.
-        :param param2: Description of param2
-          is multiline.
-        :param param3: Description of param 3.
-        :return: Description of return value.
+        :param length: The length of the rectangle.
+        :param width: The width of the rectangle.
+          """
+        self.length = length
+        self.width = width
+
+    def area(self) -> float:
         """
-        return
+        Calculates the area of the rectangle.
 
-    def some_other_function():
+        :return: The area of the rectangle.
+        :rtype: float.
         """
-        Description.
+        return self.length * self.width
 
-        :param param1: Description of param1.
-        :param param2: Description of param2.
-        :return: Description of return value.
-        """
-        return
+def main() -> None:
+    """
+    Creates a Rectangle instance, calculates its area, and prints the result.
+    """
+    rectangle = Rectangle(5, 10)
+    area = rectangle.area()
+    print(f"The area of the rectangle is {area}.")
 
-    if __name__ == '__main__':
-        some_function()
-        some_other_function()
-
+if __name__ == '__main__':
+    main()
     '''
     file_path = tmpdir.join("test.py")
     file_path.write(file_content)
 
     # call python script 'python correct_docstrings.py file_path' with subprocess and then check if file was changed
-    subprocess.run(
+    result = subprocess.run(
         [
             "python",
             f"{git_root()}/src/correct_docstrings/correct_docstrings.py",
