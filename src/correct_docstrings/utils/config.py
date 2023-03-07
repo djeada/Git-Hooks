@@ -16,6 +16,7 @@ from .docstring_filters import (
     EnsureColonInParamDescription,
     IndentMultilineParamDescription,
     SentenceCapitalization,
+    LineWrapping,
 )
 
 
@@ -28,6 +29,7 @@ class DocstringFormatterConfig:
     include_empty_line_between_description_and_params: bool = True
     include_no_repeated_whitespaces: bool = True
     include_remove_unwanted_prefixes: bool = True
+    include_line_wrapper: bool = True
     include_third_person_converter: bool = False
     include_end_of_sentence_punctuation: bool = True
     include_ensure_colon_in_param_description: bool = True
@@ -154,6 +156,9 @@ class DocstringFormatterConfig:
         """
 
         _filters = []
+
+        if self.include_line_wrapper:
+            _filters.append(LineWrapping(self.prefixes), max_length=90)
 
         if self.include_empty_line_between_description_and_params:
             _filters.append(EmptyLineBetweenDescriptionAndParams(self.prefixes))

@@ -398,6 +398,60 @@ class SentenceCapitalization(DocstringFilterBase):
         return docstring
 
 
+class LineWrapping(DocstringFilterBase):
+    """
+    Docstring filter that is responsible for wrapping lines at a given maximum length.
+
+    :param max_length: maximum length of each line.
+    :param prefixes: prefixes of the lines that should be ignored.
+    """
+
+    def __init__(
+        self, max_length: int, prefixes: Tuple[str] = (":param", ":return", ":raises")
+    ):
+        self.max_length = max_length
+        self.prefixes = prefixes
+
+    def format(self, docstring: List[str]) -> List[str]:
+        """
+        Wraps lines at a given maximum length.
+
+        :param docstring: list of lines in the docstring.
+        :return: formatted list of lines in the docstring.
+        """
+        result = []
+        for i, line in enumerate(docstring):
+            result.append(line)
+            for prefix in self.prefixes:
+                index = line.find(prefix)
+                if index != -1:
+                    index_of_second_semicolon = line.find(":", index + len(prefix))
+                    if index_of_second_semicolon != -1:
+                        line_after_second_semicolon = line[
+                            index_of_second_semicolon + 1 :
+                        ]
+
+                        while line_after_second_semicolon.startswith(" "):
+                            line_after_second_semicolon = line_after_second_semicolon[
+                                1:
+                            ]
+
+                        if len(line_after_second_semicolon) > self.max_length:
+                            last_space_index = line_after_second_semicolon.rfind(
+                                " ", 0, self.max_length
+                            )
+                            if last_space_index != -1:
+                                result = result[:-1]
+                                result.append(
+                                    line_after_second_semicolon[:last_space_index]
+                                )
+                                result.append(
+                                    line_after_second_semicolon[last_space_index + 1 :]
+                                )
+
+        return docstring
+
+
 class ThirdPersonConverter(DocstringFilterBase):
     """
     Docstring filter that is responsible for ensuring that every verb in the docstring

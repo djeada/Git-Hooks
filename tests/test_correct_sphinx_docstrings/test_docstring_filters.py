@@ -9,6 +9,7 @@ from src.correct_docstrings.utils.docstring_filters import (
     EnsureColonInParamDescription,
     IndentMultilineParamDescription,
     SentenceCapitalization,
+    LineWrapping,
 )
 
 
@@ -135,6 +136,34 @@ def test_assert_single_whitespace_after_second_semicolon():
         '    """',
     ]
     formatter = NoRepeatedWhitespaces()
+    result = formatter.format(docstring)
+    assert result == expected
+
+
+def test_assert_line_wrapping():
+    docstring = [
+        '   """',
+        "    Description",
+        "",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2 that is too long to fit on one line and should be wrapped",
+        "    :param param3: description of param3",
+        "    :return: description of return value that is also too long to fit on one line and should be wrapped",
+        '    """',
+    ]
+    expected = [
+        '   """',
+        "    Description",
+        "",
+        "    :param param1: description of param1",
+        "    :param param2: description of param2 that is too long to fit on one line and should be "
+        "wrapped",
+        "    :param param3: description of param3",
+        "    :return: description of return value that is also too long to fit on one line and "
+        "should be wrapped",
+        '    """',
+    ]
+    formatter = LineWrapping(max_length=60)
     result = formatter.format(docstring)
     assert result == expected
 
