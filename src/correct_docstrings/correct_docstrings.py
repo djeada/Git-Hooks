@@ -5,6 +5,12 @@ import difflib
 import argparse
 from pathlib import Path
 
+from src.correct_docstrings.utils.formatting_conditions import (
+    FormattingConditionValidator,
+    ModuleDocstringFilter,
+    PublicClassDocstringFilter,
+    PublicFunctionDocstringFilter,
+)
 from utils.docstring_filters import DocstringFormatter
 from utils.config import DocstringFormatterConfig
 from utils.script_filters import ScriptFormatter
@@ -59,6 +65,19 @@ def apply_formatting(path: Path, in_place=True) -> bool:
     :return: True if the file needed changes, False otherwise.
     """
     file_content = path.read_text().splitlines()
+
+    validator = FormattingConditionValidator(
+        [
+            ModuleDocstringFilter,
+            PublicClassDocstringFilter,
+            PublicFunctionDocstringFilter,
+        ]
+    )
+
+    if not validator.check(file_content):
+        print("Docstrings are missing or incorrect in the file.")
+        exit(1)
+
     config = DocstringFormatterConfig.from_json(CONFIG_PATH)
     docstrings_formatter = DocstringFormatter(config.filters)
     script_formatter = ScriptFormatter(docstrings_formatter)
