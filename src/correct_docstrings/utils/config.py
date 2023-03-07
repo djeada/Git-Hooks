@@ -230,3 +230,17 @@ class DocstringFormatterConfig:
 
         with open(json_path, "w") as file:
             json.dump(self.__dict__, file, indent=4)
+
+
+def ensure_config_file_exists(path) -> None:
+    """
+    Checks if config file exists, if not, creates it.
+    If the user doesn't have permissions to create the file, throws an exception.
+    """
+    if not path.exists():
+        config = DocstringFormatterConfig()
+        try:
+            config.to_json(path)
+        except PermissionError:
+            print("Unable to create config file!")
+            exit(-1)

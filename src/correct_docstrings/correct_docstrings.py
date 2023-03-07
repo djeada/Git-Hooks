@@ -10,7 +10,7 @@ from src.correct_docstrings.utils.formatting_conditions import (
     PublicFunctionDocstringFilter,
 )
 from utils.docstring_filters import DocstringFormatter
-from utils.config import DocstringFormatterConfig
+from utils.config import DocstringFormatterConfig, ensure_config_file_exists
 from utils.script_filters import ScriptFormatter
 
 
@@ -38,20 +38,6 @@ class ScriptArguments(argparse.ArgumentParser):
         self.add_argument(
             "-i", "--ignore", help="Ignore files or directories", nargs="+"
         )
-
-
-def ensure_config_file_exists() -> None:
-    """
-    Checks if config file exists, if not, creates it.
-    If the user doesn't have permissions to create the file, throws an exception.
-    """
-    if not CONFIG_PATH.exists():
-        config = DocstringFormatterConfig()
-        try:
-            config.to_json(CONFIG_PATH)
-        except PermissionError:
-            print("Unable to create config file!")
-            exit(-1)
 
 
 def apply_formatting(path: Path, in_place=True) -> bool:
@@ -112,7 +98,7 @@ def main():
         exit(-1)
 
     # check if config file exists
-    ensure_config_file_exists()
+    ensure_config_file_exists(CONFIG_PATH)
 
     changes_needed_flag = False
 
