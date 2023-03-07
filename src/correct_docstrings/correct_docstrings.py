@@ -1,5 +1,6 @@
 import difflib
 import argparse
+import sys
 from pathlib import Path
 
 from src.correct_docstrings.utils.formatting_conditions import (
@@ -73,7 +74,7 @@ def apply_formatting(path: Path, in_place=True) -> bool:
 
     if not validator.check(file_content):
         print("Docstrings are missing or incorrect in the file.")
-        return False
+        sys.exit(1)
 
     config = DocstringFormatterConfig.from_json(CONFIG_PATH)
     docstrings_formatter = DocstringFormatter(config.filters)
