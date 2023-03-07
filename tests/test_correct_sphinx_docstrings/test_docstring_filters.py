@@ -143,7 +143,7 @@ def test_assert_single_whitespace_after_second_semicolon():
 def test_assert_line_wrapping():
     docstring = [
         '   """',
-        "    Description",
+        "    This function takes in a dataset of customer information and generates a report that summarizes key metrics and insights about the data. The report includes information about customer demographics, purchasing behavior, and overall satisfaction with the company's products and services.",
         "",
         "    :param param1: description of param1",
         "    :param param2: description of param2 that is too long to fit on one line and should be wrapped",
@@ -153,14 +153,19 @@ def test_assert_line_wrapping():
     ]
     expected = [
         '   """',
-        "    Description",
+        "    This function takes in a dataset of customer",
+        "information and generates a report that summarizes key",
+        "metrics and insights about the data. The report includes",
+        "information about customer demographics, purchasing",
+        "behavior, and overall satisfaction with the company's",
+        "products and services.",
         "",
         "    :param param1: description of param1",
-        "    :param param2: description of param2 that is too long to fit on one line and should be "
-        "wrapped",
+        "    :param param2: description of param2 that is too long",
+        "to fit on one line and should be wrapped",
         "    :param param3: description of param3",
-        "    :return: description of return value that is also too long to fit on one line and "
-        "should be wrapped",
+        "    :return: description of return value that is also too",
+        "long to fit on one line and should be wrapped",
         '    """',
     ]
     formatter = LineWrapping(max_length=60)

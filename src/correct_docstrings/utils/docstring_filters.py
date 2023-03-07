@@ -419,16 +419,34 @@ class LineWrapping(DocstringFilterBase):
         :return: formatted list of lines in the docstring.
         """
         result = []
-        for i, line in enumerate(docstring):
-            result.append(line)
+        for line in docstring:
             if len(line) > self.max_length:
-                last_space_index = line.rfind(" ", 0, self.max_length)
-                if last_space_index != -1:
-                    result = result[:-1]
-                    result.append(line[:last_space_index])
-                    result.append(line[last_space_index + 1 :])
+                sublines = self._break_down_line(line)
+                result.extend(sublines)
+            else:
+                result.append(line)
+        return result
 
-        return docstring
+    def _break_down_line(self, line: str) -> List[str]:
+        """
+        Recursively breaks down a line longer than max_length
+        to smaller lines, until it is no longer longer than max_length.
+
+        :param line: the line to be broken down.
+        :return: a list of smaller lines.
+        """
+        if len(line) <= self.max_length:
+            return [line]
+
+        last_space_index = line.rfind(" ", 0, self.max_length)
+        if last_space_index != -1:
+            return [line[:last_space_index]] + self._break_down_line(
+                line[last_space_index + 1 :]
+            )
+
+        return [line[: self.max_length]] + self._break_down_line(
+            line[self.max_length :]
+        )
 
 
 class ThirdPersonConverter(DocstringFilterBase):
