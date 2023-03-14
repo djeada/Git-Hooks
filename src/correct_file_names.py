@@ -3,7 +3,6 @@ import sys
 
 
 def correct_file_name(file_name: str) -> None:
-
     path = pathlib.Path(file_name)
     correct_file_name = path.name.replace(" ", "_").lower()
 
@@ -12,7 +11,6 @@ def correct_file_name(file_name: str) -> None:
 
 
 if __name__ == "__main__":
-
     # check if user provided file name
     if len(sys.argv) != 2:
         print("Usage: python correct_file_names.py <dir_name>")

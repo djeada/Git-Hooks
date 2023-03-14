@@ -10,6 +10,7 @@ from src.correct_docstrings.utils.docstring_filters import (
     IndentMultilineParamDescription,
     SentenceCapitalization,
     LineWrapping,
+    DoubleDotFilter,
 )
 
 
@@ -84,12 +85,21 @@ def test_assert_empty_line_between_description_and_param_list():
     assert result == expected
 
     # no params in docstring
-    docstring = ['"""', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', '"""']
-    expected = ['"""', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', '"""']
+    docstring = [
+        '"""',
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        '"""',
+    ]
+    expected = [
+        '"""',
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        '"""',
+    ]
     formatter = EmptyLineBetweenDescriptionAndParams()
 
     result = formatter.format(docstring)
     assert result == expected
+
 
 def test_assert_no_unnecessary_prefixes():
     docstring = [
@@ -376,6 +386,82 @@ def test_indent_multiline_param_description():
     result = converter.format(docstring)
     for expected_line, result_line in zip(result, expected):
         assert expected_line == result_line
+
+
+def test_double_dot_filter():
+    docstring = [
+        '"""',
+        "    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "    .. note::",
+        "        Some note",
+        "        Some note",
+        "    Some more text",
+        "",
+        "    :return: Return value",
+        '"""',
+    ]
+    expected = [
+        '"""',
+        "    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "",
+        "    .. note::",
+        "        Some note",
+        "        Some note",
+        "",
+        "    Some more text",
+        "",
+        "    :return: Return value",
+        '"""',
+    ]
+    filter_ = DoubleDotFilter()
+    result = filter_.format(docstring)
+    assert result == expected
+
+    docstring = [
+        '"""',
+        "    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "    .. note::",
+        "        Some note",
+        "        Some note",
+        "",
+        "    :return: Return value",
+        '"""',
+    ]
+    expected = [
+        '"""',
+        "    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "",
+        "    .. note::",
+        "        Some note",
+        "        Some note",
+        "",
+        "    :return: Return value",
+        '"""',
+    ]
+    filter_ = DoubleDotFilter()
+    result = filter_.format(docstring)
+    assert result == expected
+
+    docstring = [
+        '"""',
+        "    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "    .. note::",
+        "        Some note",
+        "        Some note",
+        '"""',
+    ]
+    expected = [
+        '"""',
+        "    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "",
+        "    .. note::",
+        "        Some note",
+        "        Some note",
+        '"""',
+    ]
+    filter_ = DoubleDotFilter()
+    result = filter_.format(docstring)
+    assert result == expected
 
 
 def test_docstring_formatter():

@@ -20,7 +20,6 @@ def remove_carriage_return(file_name: str) -> None:
 
 
 if __name__ == "__main__":
-
     # check if user provided file name
     if len(sys.argv) != 2:
         print("Usage: python remove_carriage_return.py <dir_name>")

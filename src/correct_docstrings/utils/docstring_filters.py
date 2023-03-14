@@ -339,6 +339,65 @@ class IndentMultilineParamDescription(DocstringFilterBase):
         return docstring
 
 
+class DoubleDotFilter(DocstringFilterBase):
+    """
+    Docstring filter that is responsible for ensuring that there is an empty line
+    above each line starting with double dots (..). If there are already more than
+    one empty line above, they are removed to only have a single empty line above.
+
+    :param prefixes: prefixes of the lines that should be ignored.
+    """
+
+    def __init__(self, prefixes: Tuple[str] = ()):
+        super().__init__()
+        prefixes = ("Args:", "Returns:", "Raises:", "Example:", "Note:", "Notes:")
+        self.prefixes = prefixes
+
+    def format(self, docstring: List[str]) -> List[str]:
+        """
+        Formats the docstring to ensure that there is an empty line above each line
+        starting with double dots (..). If there are already more than one empty line
+        above, they are removed to only have a single empty line above.
+
+        :param docstring: list of lines in the docstring.
+        :return: formatted list of lines in the docstring.
+        """
+
+        fixed_docstring = []
+        dot_line_indention = -1
+        dot_line_index = -1
+        prev_line_was_empty = False
+        for i, line in enumerate(docstring):
+            stripped_line = line.strip()
+            current_indention = len(line) - len(line.lstrip())
+            if stripped_line in ["", '"""'] and dot_line_indention != -1:
+                dot_line_indention = -1
+            if (
+                current_indention <= dot_line_indention
+                and dot_line_indention != -1
+                and i != dot_line_index
+            ):
+                fixed_docstring.append("")
+                dot_line_indention = -1
+            if stripped_line.startswith(".."):
+                if not prev_line_was_empty:
+                    fixed_docstring.append("")
+                fixed_docstring.append(line)
+                prev_line_was_empty = False
+                dot_line_indention = len(line) - len(line.lstrip())
+                dot_line_index = i
+
+            elif stripped_line == "":
+                if not prev_line_was_empty:
+                    fixed_docstring.append(line)
+                prev_line_was_empty = True
+            else:
+                fixed_docstring.append(line)
+                prev_line_was_empty = False
+
+        return fixed_docstring
+
+
 class SentenceCapitalization(DocstringFilterBase):
     """
     Docstring filter that is responsible for ensuring that each sentence starts
@@ -525,18 +584,14 @@ class ThirdPersonConverter(DocstringFilterBase):
 
         # Add –es instead of –s if the base form ends in -s, -z, -x, -sh, -ch, or the vowel o (but not -oo).
 
-        if (
-            word.lower()[-1]
-            in [
-                "s",
-                "z",
-                "x",
-                "sh",
-                "ch",
-                "o",
-            ]
-            and not word.lower().endswith("oo")
-        ):
+        if word.lower()[-1] in [
+            "s",
+            "z",
+            "x",
+            "sh",
+            "ch",
+            "o",
+        ] and not word.lower().endswith("oo"):
             return word + "es"
 
         # If the base form ends in consonant + y, remove the -y and add –ies.

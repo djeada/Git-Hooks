@@ -4,7 +4,6 @@ import shutil
 import sys
 
 if __name__ == "__main__":
-
     # check if user provided file name
     if len(sys.argv) != 2:
         print("Usage: python no_binaries_in_staging_area.py <path>")

@@ -3,7 +3,6 @@ import sys
 
 
 def make_sure_last_line_is_empty(file_name: str) -> None:
-
     # read file contents
     with open(file_name, "r", encoding="utf-8") as file:
         contents = file.read()
@@ -22,7 +21,6 @@ def make_sure_last_line_is_empty(file_name: str) -> None:
 
 
 if __name__ == "__main__":
-
     # check if user provided file name
     if len(sys.argv) != 2:
         print("Usage: python last_line_empty.py <dir_name>")
