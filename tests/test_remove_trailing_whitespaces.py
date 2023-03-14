@@ -13,6 +13,7 @@ expected_content = (
     "1.This is a test file\n" "2.This is a test file\n" "3.This is a test file"
 )
 
+
 # test python script
 def test_remove_trailing_whitespaces(tmpdir):
     # create a temporary text file with trailing whitespaces.

@@ -317,9 +317,9 @@ class IndentMultilineParamDescription(DocstringFilterBase):
                 continue
 
             j = 0
-            while line.strip().startswith(
-                ":param"
-            ) and not next_line.strip().startswith(":"):
+            while line.strip().startswith(":param") and not (
+                next_line.strip().startswith(":") or next_line.strip() == ""
+            ):
                 j += 1
                 next_line = docstring[i + j] if i + j < len(docstring) else None
 
@@ -332,11 +332,68 @@ class IndentMultilineParamDescription(DocstringFilterBase):
                 index = i + k + 1
                 if index >= len(docstring):
                     break
+                if docstring[index].strip().startswith('"""'):
+                    break
                 docstring[index] = (
                     default_indentation + self.indentation + docstring[index].lstrip()
                 )
 
         return docstring
+
+
+class DoubleDotFilter(DocstringFilterBase):
+    """
+    Docstring filter that is responsible for ensuring that there is an empty line
+    above each line starting with double dots (..). If there are already more than
+    one empty line above, they are removed to only have a single empty line above.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def format(self, docstring: List[str]) -> List[str]:
+        """
+        Formats the docstring to ensure that there is an empty line above each line
+        starting with double dots (..). If there are already more than one empty line
+        above, they are removed to only have a single empty line above.
+
+        :param docstring: list of lines in the docstring.
+        :return: formatted list of lines in the docstring.
+        """
+
+        fixed_docstring = []
+        dot_line_indention = -1
+        dot_line_index = -1
+        prev_line_was_empty = False
+        for i, line in enumerate(docstring):
+            stripped_line = line.strip()
+            current_indention = len(line) - len(line.lstrip())
+            if stripped_line in ["", '"""'] and dot_line_indention != -1:
+                dot_line_indention = -1
+            if (
+                current_indention <= dot_line_indention
+                and dot_line_indention != -1
+                and i != dot_line_index
+            ):
+                fixed_docstring.append("")
+                dot_line_indention = -1
+            if stripped_line.startswith(".."):
+                if not prev_line_was_empty:
+                    fixed_docstring.append("")
+                fixed_docstring.append(line)
+                prev_line_was_empty = False
+                dot_line_indention = len(line) - len(line.lstrip())
+                dot_line_index = i
+
+            elif stripped_line == "":
+                if not prev_line_was_empty:
+                    fixed_docstring.append(line)
+                prev_line_was_empty = True
+            else:
+                fixed_docstring.append(line)
+                prev_line_was_empty = False
+
+        return fixed_docstring
 
 
 class SentenceCapitalization(DocstringFilterBase):
@@ -421,18 +478,19 @@ class LineWrapping(DocstringFilterBase):
         result = []
         for line in docstring:
             if len(line) > self.max_length:
-                sublines = self._break_down_line(line)
+                sublines = self._break_down_line(line, indent=self._get_indent(line))
                 result.extend(sublines)
             else:
                 result.append(line)
         return result
 
-    def _break_down_line(self, line: str) -> List[str]:
+    def _break_down_line(self, line: str, indent: str) -> List[str]:
         """
         Recursively breaks down a line longer than max_length
         to smaller lines, until it is no longer than max_length.
 
         :param line: the line to be broken down.
+        :param indent: the original indentation of the line.
         :return: a list of smaller lines.
         """
         if len(line) <= self.max_length:
@@ -441,12 +499,21 @@ class LineWrapping(DocstringFilterBase):
         last_space_index = line.rfind(" ", 0, self.max_length)
         if last_space_index != -1:
             return [line[:last_space_index]] + self._break_down_line(
-                line[last_space_index + 1 :]
+                indent + line[last_space_index + 1 :], indent=indent
             )
 
         return [line[: self.max_length]] + self._break_down_line(
-            line[self.max_length :]
+            indent + line[self.max_length :], indent=indent
         )
+
+    def _get_indent(self, line: str) -> str:
+        """
+        Gets the indentation of a line.
+
+        :param line: the line to get the indentation of.
+        :return: the indentation of the line.
+        """
+        return line[: len(line) - len(line.lstrip())]
 
 
 class ThirdPersonConverter(DocstringFilterBase):
@@ -525,18 +592,14 @@ class ThirdPersonConverter(DocstringFilterBase):
 
         # Add –es instead of –s if the base form ends in -s, -z, -x, -sh, -ch, or the vowel o (but not -oo).
 
-        if (
-            word.lower()[-1]
-            in [
-                "s",
-                "z",
-                "x",
-                "sh",
-                "ch",
-                "o",
-            ]
-            and not word.lower().endswith("oo")
-        ):
+        if word.lower()[-1] in [
+            "s",
+            "z",
+            "x",
+            "sh",
+            "ch",
+            "o",
+        ] and not word.lower().endswith("oo"):
             return word + "es"
 
         # If the base form ends in consonant + y, remove the -y and add –ies.

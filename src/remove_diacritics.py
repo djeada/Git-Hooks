@@ -4,7 +4,6 @@ import sys
 
 
 def remove_diacritics(file_name: str) -> None:
-
     # read file contents
     with open(file_name, "r", encoding="utf-8") as file:
         contents = file.read()
@@ -95,7 +94,6 @@ def remove_diacritics(file_name: str) -> None:
 
 
 if __name__ == "__main__":
-
     # check if user provided file name
     if len(sys.argv) != 2:
         print("Usage: python remove_diacritics.py <dir_name>")

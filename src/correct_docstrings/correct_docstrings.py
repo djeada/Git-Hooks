@@ -42,51 +42,48 @@ class ScriptArguments(argparse.ArgumentParser):
         )
 
 
-def apply_formatting(path: Path, in_place=True) -> bool:
-    """
-    Applies formatting to the file.
+class Formatter:
+    def __init__(
+        self,
+        validator: FormattingConditionValidator,
+        script_formatter: ScriptFormatter,
+        in_place: bool = True,
+        print_diff: bool = True,
+    ):
+        self.validator = validator
+        self.script_formatter = script_formatter
+        self.in_place = in_place
+        self.print_diff = print_diff
 
-    :param path: path to the file.
-    :param in_place: if True, changes are applied to the file, otherwise only diff is printed.
-    :return: True if the file needed changes, False otherwise.
-    """
-    file_content = path.read_text().split("\n")
+    def __call__(self, path: Path) -> bool:
+        file_content = path.read_text().split("\n")
 
-    validator = FormattingConditionValidator(
-        [
-            ModuleDocstringFilter,
-            PublicClassDocstringFilter,
-            PublicFunctionDocstringFilter,
-            PublicFunctionParameterDocstringFilter,
-            PublicFunctionParameterMismatchFilter,
-        ]
-    )
+        if not self.validator.check(file_content):
+            print("Docstrings are missing or incorrect in the file :(")
+            sys.exit(1)
 
-    if not validator.check(file_content):
-        print("Docstrings are missing or incorrect in the file.")
-        sys.exit(1)
+        formatted_file_content = self.script_formatter.format(file_content.copy())
 
-    config = DocstringFormatterConfig.from_json(CONFIG_PATH)
-    docstrings_formatter = DocstringFormatter(config.filters)
-    script_formatter = ScriptFormatter(docstrings_formatter)
-    result = script_formatter.format(file_content.copy())
+        if self.print_diff:
+            print(f"printing diff for {path}")
+            # create temporary file to see the differences
+            differences = list(
+                difflib.Differ().compare(file_content, formatted_file_content)
+            )
+            print("\n".join(differences))
 
-    if in_place:
-        path.write_text("\n".join(result))
-    else:
-        # print diff
-        print("printing diff")
-        # create temporary file
-        differences = list(difflib.Differ().compare(file_content, result))
-        print("\n".join(differences))
-
-    return result != file_content
+        if self.in_place:
+            self.path.write_text("\n".join(self.result))
 
 
 def main():
     """
     Main module for the script.
     """
+    # check if config file exists
+    ensure_config_file_exists(CONFIG_PATH)
+
+    # parse args
     args = ScriptArguments().parse_args()
 
     if not args.file_name:
@@ -101,32 +98,37 @@ def main():
         print("Provided path is not valid!")
         exit(-1)
 
-    # check if config file exists
-    ensure_config_file_exists(CONFIG_PATH)
+    files_to_check = []
 
-    changes_needed_flag = False
-
-    # if it's a file, apply formatting to it
     if path.is_file():
-        changes_needed_flag = changes_needed_flag or apply_formatting(
-            path, in_place=not args.diff
-        )
-        if args.diff:
-            print(f"Diff for {path}:")
-        else:
-            print(f"Formatting applied to {path}.")
-    else:
-        # if it's a directory, apply formatting to all files in it
-        for current_file in path.glob("**/*"):
-            if not current_file.is_file() or not current_file.name.endswith(".py"):
-                continue
-            changes_needed_flag = changes_needed_flag or apply_formatting(
-                current_file, in_place=not args.diff
-            )
-            if args.diff:
-                print(f"Diff for {current_file}:")
-            else:
-                print(f"Formatting applied to {current_file}.")
+        files_to_check.append(path)
+
+    if path.is_dir():
+        files_to_check.extend(path.glob("**/*"))
+        files_to_check = [
+            path
+            for path in files_to_check
+            if path.is_file() and path.name.endswith(".py")
+        ]
+
+    validator = FormattingConditionValidator(
+        [
+            ModuleDocstringFilter,
+            PublicClassDocstringFilter,
+            PublicFunctionDocstringFilter,
+            PublicFunctionParameterDocstringFilter,
+            PublicFunctionParameterMismatchFilter,
+        ]
+    )
+
+    config = DocstringFormatterConfig.from_json(CONFIG_PATH)
+    docstrings_formatter = DocstringFormatter(config.filters)
+    script_formatter = ScriptFormatter(docstrings_formatter)
+
+    formatter = Formatter(validator, script_formatter)
+
+    for path in files_to_check:
+        formatter.format(path)
 
     print("Done.")
 

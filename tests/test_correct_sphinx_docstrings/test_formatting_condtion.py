@@ -92,6 +92,34 @@ def test_public_function_docstring_filter():
     result = filter.check(docstring)
     assert result == expected
 
+    # Correct docstring: all public functions have docstrings
+    docstring = '''
+    @staticmethod
+    def calculate_scale_vector(
+        ref_volume: float, block: blocks.VtkBlock
+    ) -> utility.Vector3D:
+        """
+        Calculates the scale vector from a block and a reference volume.
+
+        :param ref_volume: Reference volume.
+        :param block: Block.
+        :return: Scale vector.
+        """
+        min_, max_ = snaplib.blocks.extractors.BoundingBoxExtractor().extract(block)
+        bb_volume = float(np.prod(np.array(max_) - np.array(min_)))
+
+        scale_factor = float(np.cbrt(ref_volume / bb_volume))
+        scale_vector = (scale_factor, scale_factor, scale_factor)
+        return scale_vector'''.split(
+        "\n"
+    )
+
+    expected = True
+    filter = PublicFunctionDocstringFilter()
+
+    result = filter.check(docstring)
+    assert result == expected
+
     # Incorrect docstring: a public function is missing a docstring
     docstring = [
         '"""',

@@ -10,7 +10,7 @@ class FormattingConditionFilterBase(ABC):
     Base class for formatting condition filters.
     """
 
-    def check(self, content: Tuple[str]) -> bool:
+    def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
         """
         Checks the content.
 
@@ -18,6 +18,9 @@ class FormattingConditionFilterBase(ABC):
         :return: True if everything is fine, else otherwise.
         """
         pass
+
+    def __str__(self):
+        return f"{self.__class__.__name__}"
 
 
 class ModuleDocstringFilter(FormattingConditionFilterBase):
@@ -53,8 +56,9 @@ class PublicClassDocstringFilter(FormattingConditionFilterBase):
         :param verbosity: Whether or not to display a message before returning False.
         :return: True if all public classes have docstrings, else False.
         """
-        for line in content:
+        for i, line in enumerate(content):
             if line.strip().startswith("class"):
+                original_i = i + 1
                 class_name = line.split()[1]
                 if not class_name.startswith("_"):
                     # Class is public
@@ -68,7 +72,7 @@ class PublicClassDocstringFilter(FormattingConditionFilterBase):
                         # Public class is missing docstring
                         if verbosity:
                             print(
-                                f"The public class {class_name} is missing a docstring."
+                                f"{original_i}: The public class {class_name} is missing a docstring."
                             )
                         return False
         return True
@@ -84,22 +88,45 @@ class PublicFunctionDocstringFilter(FormattingConditionFilterBase):
         :param verbosity: Whether to display appropriate message before returning False (default=True).
         :return: True if all public functions have docstrings, else False.
         """
-        for line in content:
-            if line.strip().startswith("def"):
-                func_name = line.split()[1].split("(")[0]
-                if not func_name.startswith("_"):
-                    # Function is public
-                    next_line = content.index(line) + 1
-                    if next_line < len(content) and content[
-                        next_line
-                    ].strip().startswith('"""'):
-                        # Public function has a docstring
-                        continue
-                    else:
-                        # Public function is missing docstring
-                        if verbosity:
-                            print(f"Function {func_name} is missing a docstring.")
-                        return False
+
+        def is_function_definition(line):
+            return line.strip().startswith("def ")
+
+        def get_function_name(line):
+            return line.split()[1].split("(")[0]
+
+        for i, line in enumerate(content):
+            if is_function_definition(line):
+                original_i = i + 1
+                # Check if function definition spans multiple lines
+
+                # Get function name
+                func_name = get_function_name(line)
+
+                # Check if function is public
+                if func_name.startswith("_") or (
+                    i - 1 >= 0 and re.findall(r"@\w+\.(setter|deleter)", content[i - 1])
+                ):
+                    continue
+
+                while not line.strip().endswith(":"):
+                    i += 1
+                    line = content[i]
+
+                # Function is public
+                next_line = i + 1
+                if next_line < len(content) and content[next_line].strip().startswith(
+                    '"""'
+                ):
+                    # Public function has a docstring
+                    continue
+                else:
+                    # Public function is missing docstring
+                    if verbosity:
+                        print(
+                            f"{original_i}: Function {func_name} is missing a docstring."
+                        )
+                    return False
         return True
 
 
@@ -116,49 +143,56 @@ class PublicFunctionParameterDocstringFilter(FormattingConditionFilterBase):
         for i in range(len(content) - 1):
             line = content[i].strip()
             if line.startswith("def"):
+                original_i = i + 1
                 func_name = line.split()[1].split("(")[0]
-                if not func_name.startswith("_"):
-                    # Function is public
-                    end_index = i
-                    while not line.endswith(":"):
-                        end_index += 1
-                        line = content[end_index].strip()
+                if func_name.startswith("_") or (
+                    i - 1 >= 0 and re.findall(r"@\w+\.(setter|deleter)", content[i - 1])
+                ):
+                    continue
+                # Function is public
+                end_index = i
+                while not line.endswith(":"):
+                    end_index += 1
+                    line = content[end_index].strip()
 
-                    extractor = ParametersExtractor(content)
-                    function_parameters = extractor.extract_parameters(i, end_index)
+                extractor = ParametersExtractor(content)
+                function_parameters = extractor.extract_parameters(i, end_index)
 
-                    next_line = end_index + 1
-                    if next_line < len(content) and content[
-                        next_line
-                    ].strip().startswith('"""'):
-                        docstring_content = []
-                        description_started = False
-                        for j in range(next_line, len(content)):
-                            docstring_line = content[j].strip()
-                            if not description_started and docstring_line.startswith(
-                                '"""'
-                            ):
-                                description_started = True
-                            elif description_started and docstring_line.endswith('"""'):
-                                break
-                            elif description_started:
-                                docstring_content.append(docstring_line)
+                next_line = end_index + 1
+                if next_line < len(content) and content[next_line].strip().startswith(
+                    '"""'
+                ):
+                    docstring_content = []
+                    description_started = False
+                    for j in range(next_line, len(content)):
+                        docstring_line = content[j].strip()
+                        if not description_started and docstring_line.startswith('"""'):
+                            description_started = True
+                        elif description_started and docstring_line.endswith('"""'):
+                            break
+                        elif description_started:
+                            docstring_content.append(docstring_line)
 
-                        docstring = " ".join(docstring_content).strip()
-                        docstring_parameters = re.findall(r":param ([^:]+):", docstring)
-                        if not set(
-                            [parameter.name for parameter in function_parameters]
-                        ).issubset(set(docstring_parameters)):
-                            if verbosity:
-                                print(
-                                    f"Function {func_name} is missing parameter descriptions in its docstring."
-                                )
-                            # Parameter mismatch between docstring and function signature
-                            return False
+                    docstring = " ".join(docstring_content).strip()
+                    docstring_parameters = re.findall(r":param ([^:]+):", docstring)
+                    if not set(
+                        [parameter.name for parameter in function_parameters]
+                    ).issubset(set(docstring_parameters)):
+                        if verbosity:
+                            print(
+                                f"{original_i}: Function {func_name} is missing parameter descriptions in its docstring."
+                            )
+                        # Parameter mismatch between docstring and function signature
+                        return False
         return True
 
 
 class PublicFunctionParameterMismatchFilter(FormattingConditionFilterBase):
+    """
+    A filter that checks if all parameters in public function docstrings match
+    the function signatures.
+    """
+
     def check(self, content: str, verbosity: bool = True) -> bool:
         """
         Checks if all parameters in public function docstrings match the
@@ -173,43 +207,48 @@ class PublicFunctionParameterMismatchFilter(FormattingConditionFilterBase):
         for i in range(len(content) - 1):
             line = content[i].strip()
             if line.startswith("def"):
+                original_i = i + 1
+
                 func_name = line.split()[1].split("(")[0]
-                if not func_name.startswith("_"):
-                    # Function is public
-                    end_index = i
-                    while not line.endswith(":"):
-                        end_index += 1
-                        line = content[end_index].strip()
+                if func_name.startswith("_") or (
+                    i - 1 >= 0 and re.findall(r"@\w+\.(setter|deleter)", content[i - 1])
+                ):
+                    continue
+                # Function is public
+                end_index = i
+                while not line.endswith(":"):
+                    end_index += 1
+                    line = content[end_index].strip()
 
-                    extractor = ParametersExtractor(content)
-                    function_parameters = extractor.extract_parameters(i, end_index)
+                extractor = ParametersExtractor(content)
+                function_parameters = extractor.extract_parameters(i, end_index)
 
-                    next_line = end_index + 1
-                    if next_line < len(content) and content[
-                        next_line
-                    ].strip().startswith('"""'):
-                        docstring_content = []
-                        description_started = False
-                        for j in range(next_line, len(content)):
-                            docstring_line = content[j].strip()
-                            if not description_started and docstring_line.startswith(
-                                '"""'
-                            ):
-                                description_started = True
-                            elif description_started and docstring_line.endswith('"""'):
-                                break
-                            elif description_started:
-                                docstring_content.append(docstring_line)
+                next_line = end_index + 1
+                if next_line < len(content) and content[next_line].strip().startswith(
+                    '"""'
+                ):
+                    docstring_content = []
+                    description_started = False
+                    for j in range(next_line, len(content)):
+                        docstring_line = content[j].strip()
+                        if not description_started and docstring_line.startswith('"""'):
+                            description_started = True
+                        elif description_started and docstring_line.endswith('"""'):
+                            break
+                        elif description_started:
+                            docstring_content.append(docstring_line)
 
-                        docstring = " ".join(docstring_content).strip()
-                        docstring_parameters = re.findall(r":param ([^:]+):", docstring)
-                        if not set(docstring_parameters).issubset(
-                            set([parameter.name for parameter in function_parameters])
-                        ):
-                            # Parameter mismatch between docstring and function signature
-                            if verbosity:
-                                print(f"Parameter mismatch in function {func_name}")
-                            return False
+                    docstring = " ".join(docstring_content).strip()
+                    docstring_parameters = re.findall(r":param ([^:]+):", docstring)
+                    if not set(docstring_parameters).issubset(
+                        set([parameter.name for parameter in function_parameters])
+                    ):
+                        # Parameter mismatch between docstring and function signature
+                        if verbosity:
+                            print(
+                                f"{original_i}: Parameter mismatch in function {func_name}"
+                            )
+                        return False
         return True
 
 
@@ -224,19 +263,23 @@ class FormattingConditionValidator:
     def __init__(self, filters: Tuple[Type[FormattingConditionFilterBase]]):
         self.filters = filters
 
-    def check(self, content: Tuple[str]) -> bool:
+    def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
         """
         Applies the formatting condition filters to the content and returns True
         if everything passes, else False.
 
         :param content: list of content in the content.
+        :param verbose: verbosity flag.
         :return: True if everything passes, else False.
         """
 
+        flag = True
         for filter_class in self.filters:
             filter_instance = filter_class()
+            if verbosity:
+                print(f"Starting checks using {filter_instance}...")
             if isinstance(filter_instance, FormattingConditionFilterBase):
-                if not filter_instance.check(content):
-                    return False
+                if not filter_instance.check(content, verbosity=verbosity):
+                    flag = False
 
-        return True
+        return flag
