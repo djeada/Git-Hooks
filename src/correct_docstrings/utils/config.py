@@ -17,6 +17,7 @@ from .docstring_filters import (
     IndentMultilineParamDescription,
     SentenceCapitalization,
     LineWrapping,
+    DoubleDotFilter,
 )
 
 
@@ -27,6 +28,7 @@ class DocstringFormatterConfig:
     """
 
     include_empty_line_between_description_and_params: bool = True
+    include_double_dot_filter: bool = True
     include_no_repeated_whitespaces: bool = True
     include_remove_unwanted_prefixes: bool = True
     include_line_wrapper: bool = True
@@ -159,6 +161,9 @@ class DocstringFormatterConfig:
 
         if self.include_line_wrapper:
             _filters.append(LineWrapping(max_length=89))
+
+        if self.include_double_dot_filter:
+            _filters.append(DoubleDotFilter())
 
         if self.include_empty_line_between_description_and_params:
             _filters.append(
