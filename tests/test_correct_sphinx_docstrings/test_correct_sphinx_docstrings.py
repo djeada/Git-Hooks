@@ -102,7 +102,7 @@ if __name__ == '__main__':
         [
             "python",
             f"{git_root()}/src/correct_docstrings/correct_docstrings.py",
-            file_path.strpath,
+            f"{file_path}",
         ]
     )
 

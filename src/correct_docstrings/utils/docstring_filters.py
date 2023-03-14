@@ -430,7 +430,7 @@ class LineWrapping(DocstringFilterBase):
     def _break_down_line(self, line: str) -> List[str]:
         """
         Recursively breaks down a line longer than max_length
-        to smaller lines, until it is no longer longer than max_length.
+        to smaller lines, until it is no longer than max_length.
 
         :param line: the line to be broken down.
         :return: a list of smaller lines.

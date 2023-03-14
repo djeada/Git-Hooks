@@ -158,7 +158,7 @@ class DocstringFormatterConfig:
         _filters = []
 
         if self.include_line_wrapper:
-            _filters.append(LineWrapping(max_length=90))
+            _filters.append(LineWrapping(max_length=89))
 
         if self.include_empty_line_between_description_and_params:
             _filters.append(

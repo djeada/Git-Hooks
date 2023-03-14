@@ -280,7 +280,7 @@ class ScriptFormatter:
     def __init__(
         self,
         docstring_formatter,
-        initial_filters: List[ScriptFilterBase] = [AddMissingDocstrings()],
+        initial_filters: List[ScriptFilterBase] = [],
     ):
         self.initial_filters = initial_filters
         self.docstring_formatter = docstring_formatter

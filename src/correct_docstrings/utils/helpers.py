@@ -91,7 +91,10 @@ class ParametersExtractor:
         self.content = content
 
     def extract_parameters(
-        self, start_index: int = 0, end_index: int = -1
+        self,
+        start_index: int = 0,
+        end_index: int = -1,
+        ignored_parameters=["cls", "self", "__class__"],
     ) -> List[ParameterData]:
         """
         Parses the text between start_index and end_index and extracts the parameters if any.
@@ -128,6 +131,12 @@ class ParametersExtractor:
                 parameters.append(
                     ParameterData(parameter_name, parameter_type, default_value)
                 )
+
+        parameters = [
+            parameter
+            for parameter in parameters
+            if parameter.name not in ignored_parameters
+        ]
 
         return parameters
 

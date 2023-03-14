@@ -50,7 +50,7 @@ def apply_formatting(path: Path, in_place=True) -> bool:
     :param in_place: if True, changes are applied to the file, otherwise only diff is printed.
     :return: True if the file needed changes, False otherwise.
     """
-    file_content = path.read_text().splitlines()
+    file_content = path.read_text().split("\n")
 
     validator = FormattingConditionValidator(
         [

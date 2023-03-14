@@ -83,6 +83,13 @@ def test_assert_empty_line_between_description_and_param_list():
     result = formatter.format(docstring)
     assert result == expected
 
+    # no params in docstring
+    docstring = ['"""', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', '"""']
+    expected = ['"""', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', '"""']
+    formatter = EmptyLineBetweenDescriptionAndParams()
+
+    result = formatter.format(docstring)
+    assert result == expected
 
 def test_assert_no_unnecessary_prefixes():
     docstring = [

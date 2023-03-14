@@ -21,27 +21,36 @@ class FormattingConditionFilterBase(ABC):
 
 
 class ModuleDocstringFilter(FormattingConditionFilterBase):
-    def check(self, content: Tuple[str]) -> bool:
+    def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
         """
         Checks if the first non-empty line of the content parameter
         is a module docstring that starts with either \"\"\" or '''.
 
         :param content: Text of Python script.
+        :param verbosity: Whether or not to display a message before returning False.
         :return: True if module docstring is present, else False.
         """
         for line in content:
             if line.strip() != "":
-                return line.startswith('"""') or line.startswith("'''")
+                if line.startswith('"""') or line.startswith("'''"):
+                    return True
+                else:
+                    if verbosity:
+                        print("Module docstring is missing or improperly formatted.")
+                    return False
+        if verbosity:
+            print("Module docstring is missing.")
         return False
 
 
 class PublicClassDocstringFilter(FormattingConditionFilterBase):
-    def check(self, content: Tuple[str]) -> bool:
+    def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
         """
         Checks if all public classes in the content parameter have docstrings
         immediately below their definition.
 
         :param content: Text of Python script.
+        :param verbosity: Whether or not to display a message before returning False.
         :return: True if all public classes have docstrings, else False.
         """
         for line in content:
@@ -57,17 +66,22 @@ class PublicClassDocstringFilter(FormattingConditionFilterBase):
                         continue
                     else:
                         # Public class is missing docstring
+                        if verbosity:
+                            print(
+                                f"The public class {class_name} is missing a docstring."
+                            )
                         return False
         return True
 
 
 class PublicFunctionDocstringFilter(FormattingConditionFilterBase):
-    def check(self, content: Tuple[str]) -> bool:
+    def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
         """
         Checks if all public functions in the content parameter have docstrings
         immediately below their definition.
 
         :param content: Text of Python script.
+        :param verbosity: Whether to display appropriate message before returning False (default=True).
         :return: True if all public functions have docstrings, else False.
         """
         for line in content:
@@ -83,17 +97,20 @@ class PublicFunctionDocstringFilter(FormattingConditionFilterBase):
                         continue
                     else:
                         # Public function is missing docstring
+                        if verbosity:
+                            print(f"Function {func_name} is missing a docstring.")
                         return False
         return True
 
 
 class PublicFunctionParameterDocstringFilter(FormattingConditionFilterBase):
-    def check(self, content: str) -> bool:
+    def check(self, content: str, verbosity: bool = True) -> bool:
         """
         Checks if all public functions in the content parameter have docstrings
         with descriptions for all of their parameters.
 
         :param content: Text of Python script.
+        :param verbosity: If True, displays a message before returning False.
         :return: True if all public functions have parameter descriptions, else False.
         """
         for i in range(len(content) - 1):
@@ -132,19 +149,23 @@ class PublicFunctionParameterDocstringFilter(FormattingConditionFilterBase):
                         if not set(
                             [parameter.name for parameter in function_parameters]
                         ).issubset(set(docstring_parameters)):
-
+                            if verbosity:
+                                print(
+                                    f"Function {func_name} is missing parameter descriptions in its docstring."
+                                )
                             # Parameter mismatch between docstring and function signature
                             return False
         return True
 
 
 class PublicFunctionParameterMismatchFilter(FormattingConditionFilterBase):
-    def check(self, content: str) -> bool:
+    def check(self, content: str, verbosity: bool = True) -> bool:
         """
         Checks if all parameters in public function docstrings match the
         function signatures.
 
         :param content: Text of Python script.
+        :param verbosity: Whether to display appropriate messages before returning False (default: True).
         :return: True if all public function parameters match their docstring
         descriptions, else False.
         """
@@ -186,6 +207,8 @@ class PublicFunctionParameterMismatchFilter(FormattingConditionFilterBase):
                             set([parameter.name for parameter in function_parameters])
                         ):
                             # Parameter mismatch between docstring and function signature
+                            if verbosity:
+                                print(f"Parameter mismatch in function {func_name}")
                             return False
         return True
 
