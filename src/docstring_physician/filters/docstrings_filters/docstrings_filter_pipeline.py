@@ -16,6 +16,9 @@ class DocstringFilterPipeline:
     def __init__(self, docstring_filters: Tuple[DocstringFilterBase]):
         self.filters = docstring_filters
 
+    def clear(self):
+        self.filters.clear()
+
     def format(self, docstring: List[str]) -> List[str]:
         """
         Formats the docstring using the specified filters.

@@ -1,14 +1,14 @@
 import re
 
 from src.docstring_physician.filters.docstrings_validators.validator_base import (
-    ValidatorBase,
+    DocstringValidatorBase,
 )
 from src.docstring_physician.parsers.param_parser.param_parser import (
     ParametersExtractor,
 )
 
 
-class PublicFunctionParameterPresenceValidator(ValidatorBase):
+class PublicFunctionParameterPresenceValidator(DocstringValidatorBase):
     """
     A filter that checks if all parameters in public function docstrings match
     the function signatures.

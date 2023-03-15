@@ -1,14 +1,14 @@
 import re
 
 from src.docstring_physician.filters.docstrings_validators.validator_base import (
-    ValidatorBase,
+    DocstringValidatorBase,
 )
 from src.docstring_physician.parsers.param_parser.param_parser import (
     ParametersExtractor,
 )
 
 
-class PublicFunctionParameterMatchValidator(ValidatorBase):
+class PublicFunctionParameterMatchValidator(DocstringValidatorBase):
     def check(self, content: str, verbosity: bool = True) -> bool:
         """
         Checks if all public functions in the content parameter have docstrings

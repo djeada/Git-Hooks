@@ -1,7 +1,7 @@
 from typing import Type, Tuple
 
 from src.docstring_physician.filters.docstrings_validators.validator_base import (
-    ValidatorBase,
+    DocstringValidatorBase,
 )
 
 
@@ -13,8 +13,11 @@ class DocstringValidatorPipeline:
     :param filters: list of formatting condition filters.
     """
 
-    def __init__(self, validators: Tuple[ValidatorBase]):
+    def __init__(self, validators: Tuple[DocstringValidatorBase]):
         self.validators = validators
+
+    def clear(self):
+        self.validators.clear()
 
     def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
         """

@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 from src.docstring_physician.config.config import (
-    DocstringFormatterConfig,
+    MainFormatterConfig,
     ensure_config_file_exists,
 )
 from src.docstring_physician.filters.docstrings_filters.docstrings_filter_pipeline import (
@@ -30,17 +30,35 @@ from src.docstring_physician.main_formatter import Formatter
 CONFIG_PATH = Path(__file__).parent / "correct_docstrings_config.json"
 
 
-class ScriptArguments(argparse.ArgumentParser):
+class CustomArgumentParser(argparse.ArgumentParser):
     """
-    Class for parsing arguments.
+    Command line argument parser for python scripts.
+
+    :param file_name: Name of the file or directory to process.
+    :param verbose: Enable verbose mode.
+    :param check: Check if python script contains necessary docstrings with essential elements.
+    :param format: Format the python script by correcting mistakes in docstrings.
+    :param diff: Only print diffs, without applying changes.
+    :param ignore: Ignore files or directories. Takes one or more arguments.
     """
 
     def __init__(self):
-        super().__init__()
-        self.add_argument("file_name", help="File name or directory name")
-        self.add_argument("-v", "--verbose", help="Verbose mode", action="store_true")
+        super().__init__(description=self.__doc__)
+        self.add_argument("file_name", help="Name of the file or directory to process")
         self.add_argument(
-            "-c", "--check", help="Check if any changes are needed", action="store_true"
+            "-v", "--verbose", help="Enable verbose mode", action="store_true"
+        )
+        self.add_argument(
+            "-c",
+            "--check",
+            help="Check if python script contains necessary docstrings with essential elements",
+            action="store_false",
+        )
+        self.add_argument(
+            "-f",
+            "--format",
+            help="Format the python script by correcting mistakes in docstrings",
+            action="store_false",
         )
         self.add_argument(
             "-d",
@@ -49,7 +67,10 @@ class ScriptArguments(argparse.ArgumentParser):
             action="store_true",
         )
         self.add_argument(
-            "-i", "--ignore", help="Ignore files or directories", nargs="+"
+            "-i",
+            "--ignore",
+            help="Ignore files or directories. Takes one or more arguments",
+            nargs="+",
         )
 
 
@@ -61,7 +82,7 @@ def main():
     ensure_config_file_exists(CONFIG_PATH)
 
     # parse args
-    args = ScriptArguments().parse_args()
+    args = CustomArgumentParser().parse_args()
 
     if not args.file_name:
         print("Usage: python docstring_physician.py <file_name | dir_name>")
@@ -88,18 +109,16 @@ def main():
             if path.is_file() and path.name.endswith(".py")
         ]
 
-    validators = [
-        ModuleDocstringValidator(),
-        PublicClassDocstringValidator(),
-        PublicFunctionDocstringValidator(),
-        PublicFunctionParameterMatchValidator(),
-        PublicFunctionParameterPresenceValidator(),
-    ]
+    config = MainFormatterConfig.from_json(CONFIG_PATH)
 
-    validator_pipeline = DocstringValidatorPipeline(validators)
-
-    config = DocstringFormatterConfig.from_json(CONFIG_PATH)
+    validator_pipeline = DocstringValidatorPipeline(config.validators)
     filter_pipeline = DocstringFilterPipeline(config.filters)
+
+    if not args.check:
+        validator_pipeline.clear()
+
+    if not args.format:
+        filter_pipeline.clear()
 
     formatter = Formatter(validator_pipeline, filter_pipeline)
 

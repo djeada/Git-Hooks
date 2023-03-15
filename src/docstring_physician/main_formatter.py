@@ -29,12 +29,23 @@ class Formatter:
     def __call__(self, path: Path) -> bool:
         file_content = path.read_text().split("\n")
 
-        # validators
+        self._apply_validator_pipeline(file_content)
+        formatted_file_content = self._apply_filter_pipeline(file_content)
 
+        if self.print_diff:
+            print(f"printing diff for {path}")
+            self._print_diff(file_content, formatted_file_content)
+
+        if self.in_place:
+            path.write_text("\n".join(formatted_file_content))
+
+    def _apply_validator_pipeline(self, file_content):
+        # validators
         if not self.validator_pipeline.check(file_content):
             print("Docstrings are missing or incorrect in the file :(")
             sys.exit(1)
 
+    def _apply_filter_pipeline(self, file_content):
         # docstring filters
 
         formatted_file_content = file_content.copy()
@@ -49,13 +60,22 @@ class Formatter:
                 formatted_file_content
             ).find_next_docstring(start_index + len(formatted_docstring) + 1)
 
-        if self.print_diff:
-            print(f"printing diff for {path}")
-            # create temporary file to see the differences
-            differences = list(
-                difflib.Differ().compare(file_content, formatted_file_content)
-            )
-            print("\n".join(differences))
+        return formatted_file_content
 
-        if self.in_place:
-            path.write_text("\n".join(formatted_file_content))
+    def _print_diff(self, file_content, formatted_file_content):
+        OK = "\033[92m"
+        FAIL = "\033[91m"
+        ENDC = "\033[0m"
+
+        # create temporary file to see the differences
+        differences = list(
+            difflib.Differ().compare(file_content, formatted_file_content)
+        )
+
+        for line in differences:
+            if line.startswith("+"):
+                print(OK + line + ENDC)
+            elif line.startswith("-"):
+                print(FAIL + line + ENDC)
+            else:
+                print(line)

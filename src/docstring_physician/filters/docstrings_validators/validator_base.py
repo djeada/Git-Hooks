@@ -2,7 +2,7 @@ from abc import ABC
 from typing import Tuple
 
 
-class ValidatorBase(ABC):
+class DocstringValidatorBase(ABC):
     """
     Base class for formatting condition filters.
     """

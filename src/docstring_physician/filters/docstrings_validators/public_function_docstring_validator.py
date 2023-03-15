@@ -2,11 +2,11 @@ import re
 from typing import Tuple
 
 from src.docstring_physician.filters.docstrings_validators.validator_base import (
-    ValidatorBase,
+    DocstringValidatorBase,
 )
 
 
-class PublicFunctionDocstringValidator(ValidatorBase):
+class PublicFunctionDocstringValidator(DocstringValidatorBase):
     def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
         """
         Checks if all public functions in the content parameter have docstrings

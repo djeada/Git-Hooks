@@ -1,4 +1,4 @@
-from src.docstring_physician.config.config import DocstringFormatterConfig
+from src.docstring_physician.config.config import MainFormatterConfig
 from src.docstring_physician.filters.docstrings_filters.docstrings_filter_pipeline import (
     DocstringFilterPipeline,
 )
@@ -226,8 +226,12 @@ def test_convert_to_third_person():
         '    """',
     ]
 
-    config = DocstringFormatterConfig()
-    converter = ThirdPersonFilter(config.blocking_words, config.modals, config.verbs)
+    config = MainFormatterConfig()
+    converter = ThirdPersonFilter(
+        config.docstring_filters_config.third_person_config.blocking_words,
+        config.docstring_filters_config.third_person_config.modals,
+        config.docstring_filters_config.third_person_config.verbs,
+    )
 
     expected = docstring
     result = converter.format(docstring)
@@ -253,8 +257,12 @@ def test_convert_to_third_person():
         "    :return: description of return value",
         '    """',
     ]
-    config = DocstringFormatterConfig()
-    converter = ThirdPersonFilter(config.blocking_words, config.modals, config.verbs)
+    config = MainFormatterConfig()
+    converter = ThirdPersonFilter(
+        config.docstring_filters_config.third_person_config.blocking_words,
+        config.docstring_filters_config.third_person_config.modals,
+        config.docstring_filters_config.third_person_config.verbs,
+    )
 
     result = converter.format(docstring)
     for expected_line, result_line in zip(result, expected):

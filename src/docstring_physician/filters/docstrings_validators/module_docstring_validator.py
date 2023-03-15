@@ -1,11 +1,11 @@
 from typing import Tuple
 
 from src.docstring_physician.filters.docstrings_validators.validator_base import (
-    ValidatorBase,
+    DocstringValidatorBase,
 )
 
 
-class ModuleDocstringValidator(ValidatorBase):
+class ModuleDocstringValidator(DocstringValidatorBase):
     def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
         """
         Checks if the first non-empty line of the content parameter

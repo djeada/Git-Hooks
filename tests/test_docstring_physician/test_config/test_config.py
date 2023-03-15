@@ -1,12 +1,18 @@
-from src.docstring_physician.config.config import DocstringFormatterConfig
+from pathlib import Path
+
+from src.docstring_physician.config.config import MainFormatterConfig
 
 
-def test_read_write_json(tmpdir):
-    config = DocstringFormatterConfig()
-    file_name = tmpdir.join("test.json")
+def test_json_methods(tmpdir):
+    # Create a test instance of MainFormatterConfig
+    config = MainFormatterConfig()
 
-    config.to_json(file_name)
+    # Save the instance to a temporary JSON file
+    json_path = Path(tmpdir / "test_config.json")
+    config.to_json(json_path)
 
-    config2 = DocstringFormatterConfig.from_json(file_name)
+    # Load the instance back from the JSON file
+    loaded_config = MainFormatterConfig.from_json(json_path)
 
-    assert config == config2
+    # Compare the original and loaded instances
+    assert config == loaded_config, "The original and loaded instances are not equal"

@@ -2,7 +2,7 @@
 Classes responsible for storing configuration for the script formatter.
 """
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, fields, is_dataclass, asdict, field
 from pathlib import Path
 from typing import List, Tuple
 
@@ -39,27 +39,43 @@ from src.docstring_physician.filters.docstrings_filters.sentence_punctuation_fil
 from src.docstring_physician.filters.docstrings_filters.third_person_filter import (
     ThirdPersonFilter,
 )
+from src.docstring_physician.filters.docstrings_validators.module_docstring_validator import (
+    ModuleDocstringValidator,
+)
+from src.docstring_physician.filters.docstrings_validators.public_class_docstring_validator import (
+    PublicClassDocstringValidator,
+)
+from src.docstring_physician.filters.docstrings_validators.public_function_docstring_validator import (
+    PublicFunctionDocstringValidator,
+)
+from src.docstring_physician.filters.docstrings_validators.public_function_parameter_match_validator import (
+    PublicFunctionParameterMatchValidator,
+)
+from src.docstring_physician.filters.docstrings_validators.public_function_parameter_presence_validator import (
+    PublicFunctionParameterPresenceValidator,
+)
+from src.docstring_physician.filters.docstrings_validators.validator_base import (
+    DocstringValidatorBase,
+)
 
 
 @dataclass
-class DocstringFormatterConfig:
+class DocstringFormattingStyle:
     """
-    Configuration for the docstring formatter.
+    Style options for formatting the docstring.
     """
 
-    include_empty_line_between_description_and_params: bool = True
-    include_double_dot_filter: bool = True
-    include_no_repeated_whitespaces: bool = True
-    include_remove_unwanted_prefixes: bool = True
-    include_line_wrapper: bool = True
-    include_third_person_converter: bool = False
-    include_end_of_sentence_punctuation: bool = True
-    include_ensure_colon_in_param_description: bool = True
-    include_indent_multiline_param_description: bool = True
-    include_sentence_capitalization: bool = True
     prefixes: Tuple[str] = tuple([":param", ":return", ":raises"])
     punctuation: str = "."
     indentation: str = " " * 2
+
+
+@dataclass
+class ThirdPersonConfig:
+    """
+    Style options for formatting the docstring.
+    """
+
     blocking_words: Tuple[str] = tuple(
         "not, to, a, an, the, for, in, of, and, or, as, if, but, nor, so, yet, at, by, "
         "from, into, like, over, after, before, between, into, through, with, without, "
@@ -167,51 +183,7 @@ class DocstringFormatterConfig:
         "wink, wipe, wish, withdraw, withhold, withstand, wobble, wonder, work, worry, wrap, wreck, wrestle, "
         "wriggle, wring, write, x-ray, yawn, yell, zip, zoom, validate".split(", ")
     )
-    ignored_verbs: Tuple[str] = tuple([])
-
-    @property
-    def filters(self) -> List[DocstringFilterBase]:
-        """
-        Returns the selected filters.
-
-        :return: List of selected filters.
-        """
-
-        _filters = []
-
-        if self.include_line_wrapper:
-            _filters.append(LineWrappingFilter(max_length=89))
-
-        if self.include_double_dot_filter:
-            _filters.append(DoubleDotFilter())
-
-        if self.include_empty_line_between_description_and_params:
-            _filters.append(ParameterSectionSeparatorFilter(prefixes=self.prefixes))
-
-        if self.include_no_repeated_whitespaces:
-            _filters.append(NoRepeatedWhitespacesFilter(prefixes=self.prefixes))
-
-        if self.include_remove_unwanted_prefixes:
-            _filters.append(PrefixStripperFilter(prefixes=self.prefixes))
-
-        if self.include_third_person_converter:
-            _filters.append(
-                ThirdPersonFilter(self.blocking_words, self.modals, self.verbs)
-            )
-
-        if self.include_end_of_sentence_punctuation:
-            _filters.append(SentencePunctuationFilter(self.punctuation))
-
-        if self.include_ensure_colon_in_param_description:
-            _filters.append(ParamDescriptionFormatFilter())
-
-        if self.include_indent_multiline_param_description:
-            _filters.append(MultilineParamIndentFilter(self.indentation))
-
-        if self.include_sentence_capitalization:
-            _filters.append(SentenceCapitalizationFilter(prefixes=self.prefixes))
-
-        return _filters
+    ignored_verbs: Tuple[str] = tuple()
 
     @property
     def verbs(self) -> Tuple[str]:
@@ -223,36 +195,179 @@ class DocstringFormatterConfig:
 
         return tuple([verb for verb in self._verbs if verb not in self.ignored_verbs])
 
+
+@dataclass
+class DocstringFiltersConfig:
+    """
+    Options for formatting the docstring.
+    """
+
+    include_empty_line_between_description_and_params: bool = True
+    include_double_dot_filter: bool = True
+    include_no_repeated_whitespaces: bool = True
+    include_remove_unwanted_prefixes: bool = True
+    include_line_wrapper: bool = True
+    include_third_person_converter: bool = False
+    include_end_of_sentence_punctuation: bool = True
+    include_ensure_colon_in_param_description: bool = True
+    include_indent_multiline_param_description: bool = True
+    include_sentence_capitalization: bool = True
+    style: DocstringFormattingStyle = field(default_factory=DocstringFormattingStyle)
+    third_person_config: ThirdPersonConfig = field(default_factory=ThirdPersonConfig)
+
+    @property
+    def filters(self) -> List[DocstringFilterBase]:
+        """
+        Returns the selected filters.
+
+        :return: List of selected filters.
+        """
+
+        filter_map = [
+            (self.include_line_wrapper, LineWrappingFilter, {"max_length": 89}),
+            (self.include_double_dot_filter, DoubleDotFilter, {}),
+            (
+                self.include_empty_line_between_description_and_params,
+                ParameterSectionSeparatorFilter,
+                {"prefixes": self.style.prefixes},
+            ),
+            (
+                self.include_no_repeated_whitespaces,
+                NoRepeatedWhitespacesFilter,
+                {"prefixes": self.style.prefixes},
+            ),
+            (
+                self.include_remove_unwanted_prefixes,
+                PrefixStripperFilter,
+                {"prefixes": self.style.prefixes},
+            ),
+            (
+                self.include_end_of_sentence_punctuation,
+                SentencePunctuationFilter,
+                {"punctuation": self.style.punctuation},
+            ),
+            (
+                self.include_ensure_colon_in_param_description,
+                ParamDescriptionFormatFilter,
+                {},
+            ),
+            (
+                self.include_indent_multiline_param_description,
+                MultilineParamIndentFilter,
+                {"indentation": self.style.indentation},
+            ),
+            (
+                self.include_sentence_capitalization,
+                SentenceCapitalizationFilter,
+                {"prefixes": self.style.prefixes},
+            ),
+        ]
+
+        _filters = [
+            FilterCls(**kwargs) for include, FilterCls, kwargs in filter_map if include
+        ]
+
+        return _filters
+
+
+@dataclass
+class DocstringValidatorsConfig:
+    """
+    Options for formatting the docstring.
+    """
+
+    include_module_docstring_validator: bool = True
+    include_public_class_docstring_validator: bool = True
+    include_public_function_docstring_validator: bool = True
+    include_public_function_parameter_match_validator: bool = True
+    include_public_function_parameter_presence_validator: bool = True
+
+    @property
+    def validators(self) -> List[DocstringValidatorBase]:
+        validator_map = [
+            (self.include_module_docstring_validator, ModuleDocstringValidator, {}),
+            (
+                self.include_public_class_docstring_validator,
+                PublicClassDocstringValidator,
+                {},
+            ),
+            (
+                self.include_public_function_docstring_validator,
+                PublicFunctionDocstringValidator,
+                {},
+            ),
+            (
+                self.include_public_function_parameter_match_validator,
+                PublicFunctionParameterMatchValidator,
+                {},
+            ),
+            (
+                self.include_public_function_parameter_presence_validator,
+                PublicFunctionParameterPresenceValidator,
+                {},
+            ),
+        ]
+
+        _validators = [
+            ValidatorCls(**kwargs)
+            for include, ValidatorCls, kwargs in validator_map
+            if include
+        ]
+
+        return _validators
+
+
+@dataclass
+class MainFormatterConfig:
+    """
+    Configuration for the docstring formatter.
+    """
+
+    docstring_filters_config: DocstringFiltersConfig = field(
+        default_factory=DocstringFiltersConfig
+    )
+    docstring_validators_config: DocstringValidatorsConfig = field(
+        default_factory=DocstringValidatorsConfig
+    )
+
+    @property
+    def validators(self):
+        return self.docstring_validators_config.validators
+
+    @property
+    def filters(self):
+        return self.docstring_filters_config.filters
+
     @classmethod
-    def from_json(cls, json_path: Path) -> "DocstringFormatterConfig":
-        """
-        Creates a new instance from a JSON file.
+    def from_json(cls, json_path: Path) -> "MainFormatterConfig":
+        with json_path.open("r") as fp:
+            config_dict = json.load(fp)
 
-        :param json_path: Path to the JSON file.
-        :return: New instance.
-        """
+        # Recursively reconstruct nested dataclasses and convert lists to tuples
+        def from_dict(data_class, data_dict):
+            kwargs = {}
+            for field in fields(data_class):
+                if is_dataclass(field.type):
+                    kwargs[field.name] = from_dict(field.type, data_dict[field.name])
+                elif isinstance(data_dict[field.name], list):
+                    kwargs[field.name] = tuple(
+                        from_dict(field.type.__args__[0], item)
+                        if is_dataclass(field.type.__args__[0])
+                        else item
+                        for item in data_dict[field.name]
+                    )
+                else:
+                    kwargs[field.name] = data_dict[field.name]
+            return data_class(**kwargs)
 
-        with open(json_path, "r") as file:
-            data = json.load(file)
-
-        new_config = cls(**data)
-
-        # convert all lists to tuples
-        for key, value in data.items():
-            if isinstance(value, list):
-                setattr(new_config, key, tuple(value))
-
-        return new_config
+        return from_dict(cls, config_dict)
 
     def to_json(self, json_path: Path) -> None:
-        """
-        Saves the current instance to a JSON file.
+        # Recursively convert nested dataclasses to dictionaries
+        config_dict = asdict(self)
 
-        :param json_path: Path to the JSON file.
-        """
-
-        with open(json_path, "w") as file:
-            json.dump(self.__dict__, file, indent=4)
+        with json_path.open("w") as fp:
+            json.dump(config_dict, fp, indent=2)
 
 
 def ensure_config_file_exists(path) -> None:
@@ -261,7 +376,7 @@ def ensure_config_file_exists(path) -> None:
     If the user doesn't have permissions to create the file, throws an exception.
     """
     if not path.exists():
-        config = DocstringFormatterConfig()
+        config = MainFormatterConfig()
         try:
             config.to_json(path)
         except PermissionError:
