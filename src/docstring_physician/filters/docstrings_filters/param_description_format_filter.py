@@ -19,10 +19,12 @@ class ParamDescriptionFormatFilter(DocstringFilterBase):
         :return: some description
     """
 
+    def __init__(self, prefixes=[":param", ":return", ":raises"]):
+        self.prefixes = prefixes
+
     def format(self, docstring: List[str]) -> List[str]:
         """
         Makes sure that each parameter description starts with ':param <param_name>:'.
-
         :param docstring: list of lines in the docstring.
         :return: formatted list of lines in the docstring.
         """
@@ -32,15 +34,21 @@ class ParamDescriptionFormatFilter(DocstringFilterBase):
                 continue
 
             if line.strip().startswith(":param") and (
-                line.count(":") == 1 or len(line.strip().split(":")[1].split(" ")) != 2
+                    line.count(":") == 1 or len(
+                line.strip().split(":")[1].split(" ")) != 2
             ):
                 j = line.index(":")
                 # find the second word in the line after j and add a colon after it
-                j += line[j + 1 :].index(" ") + 1
-                j += line[j + 1 :].index(" ") + 1
+                j += line[j + 1:].index(" ") + 1
+                j += line[j + 1:].index(" ") + 1
                 docstring[i] = line[:j] + line[j:].replace(" ", ": ", 1)
 
-            while "::" in docstring[i]:
-                docstring[i] = docstring[i].replace("::", ":")
+            for prefix in self.prefixes:
+                if docstring[i].strip().startswith(prefix):
+                    while "::" in docstring[i]:
+                        docstring[i] = docstring[i].replace("::", ":")
 
         return docstring
+
+
+

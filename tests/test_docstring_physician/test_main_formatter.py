@@ -56,7 +56,7 @@ def test_main_formatter(tmpdir):
     """
     This module contains a simple class and a main function to demonstrate its use.
 
-    .. moduleauthor: Your Name <your.email@example.com>
+    .. moduleauthor: Your Name <your.email@example.com>::
     """
 
     class Rectangle:
@@ -104,7 +104,7 @@ def test_main_formatter(tmpdir):
     """
     This module contains a simple class and a main function to demonstrate its use.
 
-    .. moduleauthor: Your Name <your.email@example.com>
+    .. moduleauthor: Your Name <your.email@example.com>::
     """
 
     class Rectangle:
