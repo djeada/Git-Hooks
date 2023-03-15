@@ -43,7 +43,7 @@ class SentencePunctuationFilter(DocstringFilterBase):
             if line.endswith(self.punctuation):
                 continue
 
-            if not any(char.isalpha() for char in line):
+            if not any(char.isalnum() for char in line):
                 continue
 
             if line[-1] in string.punctuation:
@@ -60,7 +60,7 @@ class SentencePunctuationFilter(DocstringFilterBase):
                 next_line = docstring[j].strip()
                 j += 1
 
-            if next_line.startswith(":") or j + 1 >= len(docstring):
+            if (next_line and not next_line[0].isalnum()) or j + 1 >= len(docstring):
                 docstring[i] = docstring[i].rstrip() + self.punctuation
 
         return docstring
