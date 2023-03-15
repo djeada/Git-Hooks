@@ -67,7 +67,7 @@ class DocstringFormattingStyle:
 
     prefixes: Tuple[str] = tuple([":param", ":return", ":raises"])
     punctuation: str = "."
-    indentation: str = " " * 2
+    indentation: str = " " * 4
 
 
 @dataclass
