@@ -26,31 +26,30 @@ pip install -r requirements.txt
 python src/example_script.py
 ```
 
-## What are hooks?
+## Understanding Hooks
 
-When you open any decent repository, you'll see a <code>hooks</code> folder. Git iteslf contains a collection of hooks that can run scripts in a variety of scenarios. For example, before attempting to push your code to the repository, after pulling it from the remote, or before creating a new commit. 
+When you explore a well-structured repository, you'll come across a `hooks` folder. Git itself includes a set of hooks that can execute scripts in various scenarios, such as before pushing your code to the repository, after pulling from the remote, or before creating a new commit.
 
 ## Pre-commit
 
-When the <code>git commit</code> command is used, pre-commit scripts are run.
+Pre-commit scripts are executed when the `git commit` command is used. These scripts are often employed to run tasks that verify your code conforms to the coding style adopted by your development team.
 
-Pre-commit is frequently used to run tasks that check your code to ensure that it fits the code style used by the rest of programming team.
-For Python projects, for example, there are tools like <code>black</code> and <code>flake8</code> that check code to ensure that it adheres to established standards. 
+For instance, Python projects may use tools like `black` and `flake8` to ensure code adheres to established standards. If your code doesn't meet these standards, the tools will prevent you from creating a new commit and modify your code accordingly.
 
-If it does not, they will block you from making a new commit and will change your code.
+You can then review your code, confirm everything is in order, and attempt to commit again. This time, the commit should be successful.
 
-Then you can review your code to see that everything is still in order, and try to commit again, which should be successful this time.
- 
-You can also run tests, although this normally takes more than a few seconds. As a result, we discourage running tests on pre-commit. 
+Although you can run tests using pre-commit, they typically take more than a few seconds to execute. Therefore, we generally advise against running tests during pre-commit.
 
-## How to use a custom hook?
+## Implementing a Custom Hook
 
-You have to create a file named <code>pre-commit</code> in the <code>.git/hooks</code> directory. The name is crucial, you can't change it if you want git to recognize your script. Now edit the <code>pre-commit</code> file and put whatever commands you want git to execute whenever you will attempt to make a commit. For this repository we use the following script:
+To use a custom hook, create a file named pre-commit in the `.git/hooks` directory. The filename is essential, as Git will only recognize your script if it's named accordingly. Edit the pre-commit file and add the commands you want Git to execute whenever you attempt to make a commit. For this repository, we use the following script:
 
-    #!/usr/bin/env bash
-    hooks/_run_all.sh
+```Bash
+#!/usr/bin/env bash
+hooks/_run_all.sh
+```
 
-Don't forget to add execution permissions to the <code>pre-commit</code> script!
+Don't forget to grant execution permissions to the pre-commit script!
 
 ## Available scripts
 
