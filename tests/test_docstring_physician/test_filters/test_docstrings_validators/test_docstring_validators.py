@@ -1,3 +1,5 @@
+from src.docstring_physician.filters.docstrings_validators.class_init_parameter_match_validator import \
+    ClassInitParameterMatchValidator
 from src.docstring_physician.filters.docstrings_validators.module_docstring_validator import (
     ModuleDocstringValidator,
 )
@@ -271,3 +273,78 @@ def test_public_function_parameter_mismatch_filter():
         "\n"
     )
     assert filter.check(content)
+
+def test_class_init_parameter_docstring_validator():
+    # Correct docstring: all class __init__ methods have parameter descriptions
+    content = [
+        '"""',
+        "Module docstring",
+        '"""',
+        "",
+        "class ExampleClass:",
+        '    """',
+        "    ExampleClass docstring",
+        "",
+        "    :param param1: Description for param1",
+        "    :param param2: Description for param2",
+        '    """',
+        "",
+        "    def __init__(self, param1: int, param2: str):",
+        "        pass",
+        "",
+        "class AnotherClass:",
+        '    """',
+        "    AnotherClass docstring",
+        "",
+        "    :param param_a: Description for param_a",
+        "    :param param_b: Description for param_b",
+        '    """',
+        "",
+        "    def __init__(self, param_a: int, param_b: str):",
+        "        pass",
+    ]
+    expected = True
+    validator = ClassInitParameterMatchValidator()
+
+    result = validator.check(content)
+    if result != expected:
+        print("Expected: ", expected)
+        print("Actual: ", result)
+        print("Content: ", content)
+    assert result == expected
+
+    # Incorrect docstring: a class __init__ method is missing a parameter description
+    content = [
+        '"""',
+        "Module docstring",
+        '"""',
+        "",
+        "class ExampleClass:",
+        '    """',
+        "    ExampleClass docstring",
+        "",
+        "    :param param1: Description for param1",
+        '    """',
+        "",
+        "    def __init__(self, param1: int, param2: str):",
+        "        pass",
+        "",
+        "class AnotherClass:",
+        '    """',
+        "    AnotherClass docstring",
+        "",
+        "    :param param_a: Description for param_a",
+        "    :param param_b: Description for param_b",
+        '    """',
+        "",
+        "    def __init__(self, param_a: int, param_b: str):",
+        "        pass",
+    ]
+    expected = False
+
+    result = validator.check(content)
+    if result != expected:
+        print("Expected: ", expected)
+        print("Actual: ", result)
+        print("Content: ", content)
+    assert result == expected

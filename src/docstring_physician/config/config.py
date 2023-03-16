@@ -39,6 +39,8 @@ from src.docstring_physician.filters.docstrings_filters.sentence_punctuation_fil
 from src.docstring_physician.filters.docstrings_filters.third_person_filter import (
     ThirdPersonFilter,
 )
+from src.docstring_physician.filters.docstrings_validators.class_init_parameter_match_validator import \
+    ClassInitParameterMatchValidator
 from src.docstring_physician.filters.docstrings_validators.module_docstring_validator import (
     ModuleDocstringValidator,
 )
@@ -281,6 +283,7 @@ class DocstringValidatorsConfig:
     include_public_function_docstring_validator: bool = True
     include_public_function_parameter_match_validator: bool = True
     include_public_function_parameter_presence_validator: bool = True
+    include_class_init_parameter_match_validator: bool = True
 
     @property
     def validators(self) -> List[DocstringValidatorBase]:
@@ -289,6 +292,11 @@ class DocstringValidatorsConfig:
             (
                 self.include_public_class_docstring_validator,
                 PublicClassDocstringValidator,
+                {},
+            ),
+            (
+                self.include_class_init_parameter_match_validator,
+                ClassInitParameterMatchValidator,
                 {},
             ),
             (
