@@ -535,6 +535,70 @@ def test_double_dot_filter():
     result = filter_.format(docstring)
     assert result == expected
 
+    docstring = [
+        '"""',
+        "    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "    .. note::",
+        "       :note: robot",
+        "        Some note",
+        "        Some note",
+        "    Some more text",
+        "",
+        "    :return: Return value",
+        '"""',
+    ]
+    expected = [
+        '"""',
+        "    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "",
+        "    .. note::",
+        "       :note: robot",
+        "",
+        "        Some note",
+        "        Some note",
+        "",
+        "    Some more text",
+        "",
+        "    :return: Return value",
+        '"""',
+    ]
+    filter_ = DoubleDotFilter()
+    result = filter_.format(docstring)
+    assert result == expected
+
+    docstring = [
+        '"""',
+        "    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "    .. note::",
+        "       :note: robot",
+        "       :note: robot",
+        "        Some note",
+        "        Some note",
+        "    Some more text",
+        "",
+        "    :return: Return value",
+        '"""',
+    ]
+    expected = [
+        '"""',
+        "    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "",
+        "    .. note::",
+        "       :note: robot",
+        "       :note: robot",
+        "",
+        "        Some note",
+        "        Some note",
+        "",
+        "    Some more text",
+        "",
+        "    :return: Return value",
+        '"""',
+    ]
+    filter_ = DoubleDotFilter()
+    result = filter_.format(docstring)
+    assert result == expected
+
 
 def test_preserve_parameter_order():
     file_content = """

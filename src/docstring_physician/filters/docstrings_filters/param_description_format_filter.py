@@ -34,13 +34,12 @@ class ParamDescriptionFormatFilter(DocstringFilterBase):
                 continue
 
             if line.strip().startswith(":param") and (
-                    line.count(":") == 1 or len(
-                line.strip().split(":")[1].split(" ")) != 2
+                line.count(":") == 1 or len(line.strip().split(":")[1].split(" ")) != 2
             ):
                 j = line.index(":")
                 # find the second word in the line after j and add a colon after it
-                j += line[j + 1:].index(" ") + 1
-                j += line[j + 1:].index(" ") + 1
+                j += line[j + 1 :].index(" ") + 1
+                j += line[j + 1 :].index(" ") + 1
                 docstring[i] = line[:j] + line[j:].replace(" ", ": ", 1)
 
             for prefix in self.prefixes:
@@ -49,6 +48,3 @@ class ParamDescriptionFormatFilter(DocstringFilterBase):
                         docstring[i] = docstring[i].replace("::", ":")
 
         return docstring
-
-
-
