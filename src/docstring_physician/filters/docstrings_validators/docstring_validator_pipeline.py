@@ -29,11 +29,16 @@ class DocstringValidatorPipeline:
         :return: True if everything passes, else False.
         """
 
+        error_list = list()
+
         flag = True
         for validator in self.validators:
             if verbosity:
                 print(f"Starting checks using {validator}...")
-            if not validator.check(content, verbosity=verbosity):
+            if not validator.check(content, error_list, verbosity=verbosity):
                 flag = False
+
+        for error in sorted(error_list):
+            print(error)
 
         return flag

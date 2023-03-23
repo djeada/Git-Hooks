@@ -228,7 +228,7 @@ def test_public_function_parameter_mismatch_filter():
     '''.split(
         "\n"
     )
-    assert filter.check(content)
+    assert filter.check(content, [])
 
     # Test with function that has incorrect parameter descriptions
     content = '''
@@ -244,7 +244,7 @@ def test_public_function_parameter_mismatch_filter():
     '''.split(
         "\n"
     )
-    assert not filter.check(content)
+    assert not filter.check(content, [])
 
     # Test with function that has missing parameter descriptions
     content = '''
@@ -258,7 +258,7 @@ def test_public_function_parameter_mismatch_filter():
     '''.split(
         "\n"
     )
-    assert filter.check(content)
+    assert filter.check(content, [])
 
     # Test with private function that should be ignored
     content = '''
@@ -273,7 +273,7 @@ def test_public_function_parameter_mismatch_filter():
     '''.split(
         "\n"
     )
-    assert filter.check(content)
+    assert filter.check(content, [])
 
 
 def test_class_init_parameter_docstring_validator():

@@ -1,5 +1,7 @@
 from abc import ABC
-from typing import Tuple
+from typing import Tuple, List
+
+from src.docstring_physician.filters.docstrings_validators.error_data import ErrorData
 
 
 class DocstringValidatorBase(ABC):
@@ -7,7 +9,9 @@ class DocstringValidatorBase(ABC):
     Base class for formatting condition filters.
     """
 
-    def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
+    def check(
+        self, content: Tuple[str], error_list: List[ErrorData], verbosity: bool = True
+    ) -> bool:
         """
         Checks the content.
 

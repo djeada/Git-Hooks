@@ -1,18 +1,25 @@
 import re
-from typing import Tuple
+from typing import Tuple, List
 
+from src.docstring_physician.filters.docstrings_validators.error_data import ErrorData
 from src.docstring_physician.filters.docstrings_validators.validator_base import (
     DocstringValidatorBase,
 )
 
 
 class PublicFunctionDocstringValidator(DocstringValidatorBase):
-    def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
+    def check(
+        self,
+        content: Tuple[str],
+        error_list: List[ErrorData] = [],
+        verbosity: bool = True,
+    ) -> bool:
         """
         Checks if all public functions in the content parameter have docstrings
         immediately below their definition.
 
         :param content: Text of Python script.
+        :param error_list: List of ErrorData objects to store any errors found.
         :param verbosity: Whether to display appropriate message before returning False (default=True).
         :return: True if all public functions have docstrings, else False.
         """
@@ -22,6 +29,8 @@ class PublicFunctionDocstringValidator(DocstringValidatorBase):
 
         def get_function_name(line):
             return line.split()[1].split("(")[0]
+
+        error_found = False
 
         for i, line in enumerate(content):
             if is_function_definition(line):
@@ -51,8 +60,13 @@ class PublicFunctionDocstringValidator(DocstringValidatorBase):
                 else:
                     # Public function is missing docstring
                     if verbosity:
-                        print(
-                            f"{original_i}: Function {func_name} is missing a docstring."
-                        )
-                    return False
-        return True
+                        message = f"Function {func_name} is missing a docstring."
+                        error_list.append(ErrorData(original_i, message))
+                        error_found = True
+
+        if error_found:
+            if verbosity:
+                print("Errors found while checking docstrings.")
+            return False
+        else:
+            return True

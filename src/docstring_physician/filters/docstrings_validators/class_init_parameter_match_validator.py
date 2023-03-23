@@ -1,6 +1,7 @@
 import re
 from typing import List
 
+from src.docstring_physician.filters.docstrings_validators.error_data import ErrorData
 from src.docstring_physician.filters.docstrings_validators.validator_base import (
     DocstringValidatorBase,
 )
@@ -10,19 +11,28 @@ from src.docstring_physician.parsers.param_parser.param_parser import (
 
 
 class ClassInitParameterMatchValidator(DocstringValidatorBase):
-    def check(self, content: List[str], verbosity: bool = True) -> bool:
+    def check(
+        self,
+        content: List[str],
+        error_list: List[ErrorData] = [],
+        verbosity: bool = True,
+    ) -> bool:
         """
         Checks if all classes in the content parameter have docstrings with
         descriptions for all of their __init__ method parameters.
 
         :param content: List of lines in the Python script.
+        :param error_list: List of ErrorData objects to store any errors found.
         :param verbosity: If True, displays a message before returning False.
         :return: True if all classes have parameter descriptions, else False.
         """
 
         i = 0
+        error_found = False
+
         while i < len(content):
             line = content[i].strip()
+
             if line.startswith("class"):
                 class_name = line.split()[1].split("(")[0]
                 class_docstring_start = -1
@@ -49,6 +59,8 @@ class ClassInitParameterMatchValidator(DocstringValidatorBase):
 
                 # Check if __init__ method exists
                 if init_start == -1:
+                    # No __init__ method found for the class, skip it
+                    i -= 1
                     continue
 
                 # Find the end index of the __init__ method
@@ -79,22 +91,26 @@ class ClassInitParameterMatchValidator(DocstringValidatorBase):
                     class_docstring_parameters = re.findall(
                         r":param ([^:]+):", class_docstring
                     )
+
                     # Debug info
                     print(
                         "Init parameters: ",
                         [parameter.name for parameter in init_parameters],
                     )
                     print("Class docstring parameters: ", class_docstring_parameters)
-                    if not set(
-                        [parameter.name for parameter in init_parameters]
-                    ).issubset(set(class_docstring_parameters)):
-                        if verbosity:
-                            print(
-                                f"{class_docstring_start}: Class {class_name} is missing __init__ parameter descriptions in its docstring."
-                            )
-                        # Parameter mismatch between class docstring and __init__ method signature
-                        return False
+
+                    # Check if all init parameters have descriptions in class docstring
+                    for parameter in init_parameters:
+                        if parameter.name not in class_docstring_parameters:
+                            message = f"Class {class_name} is missing __init__ parameter description for '{parameter.name}' in its docstring."
+                            error_list.append(ErrorData(init_start, message))
+                            error_found = True
 
             i += 1
 
-        return True
+        if error_found:
+            if verbosity:
+                print("Errors found while checking class docstrings.")
+            return False
+        else:
+            return True

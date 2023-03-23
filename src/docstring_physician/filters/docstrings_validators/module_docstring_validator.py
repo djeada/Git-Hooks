@@ -1,12 +1,18 @@
-from typing import Tuple
+from typing import Tuple, List
 
+from src.docstring_physician.filters.docstrings_validators.error_data import ErrorData
 from src.docstring_physician.filters.docstrings_validators.validator_base import (
     DocstringValidatorBase,
 )
 
 
 class ModuleDocstringValidator(DocstringValidatorBase):
-    def check(self, content: Tuple[str], verbosity: bool = True) -> bool:
+    def check(
+        self,
+        content: Tuple[str],
+        error_list: List[ErrorData] = [],
+        verbosity: bool = True,
+    ) -> bool:
         """
         Checks if the first non-empty line of the content parameter
         is a module docstring that starts with either \"\"\" or '''.

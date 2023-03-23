@@ -1,5 +1,7 @@
 import re
+from typing import List
 
+from src.docstring_physician.filters.docstrings_validators.error_data import ErrorData
 from src.docstring_physician.filters.docstrings_validators.validator_base import (
     DocstringValidatorBase,
 )
@@ -14,12 +16,15 @@ class PublicFunctionParameterPresenceValidator(DocstringValidatorBase):
     the function signatures.
     """
 
-    def check(self, content: str, verbosity: bool = True) -> bool:
+    def check(
+        self, content: str, error_list: List[ErrorData] = [], verbosity: bool = True
+    ) -> bool:
         """
         Checks if all parameters in public function docstrings match the
         function signatures.
 
         :param content: Text of Python script.
+        :param error_list: List to update with any errors found.
         :param verbosity: Whether to display appropriate messages before returning False (default: True).
         :return: True if all public function parameters match their docstring
         descriptions, else False.
@@ -41,7 +46,7 @@ class PublicFunctionParameterPresenceValidator(DocstringValidatorBase):
                     end_index += 1
                     line = content[end_index].strip()
 
-                extractor = ParametersExtractor(content)
+                extractor = ParametersExtractor(content[i:])
                 function_parameters = extractor.extract_parameters(i, end_index)
 
                 next_line = end_index + 1
@@ -69,5 +74,10 @@ class PublicFunctionParameterPresenceValidator(DocstringValidatorBase):
                             print(
                                 f"{original_i}: Parameter mismatch in function {func_name}"
                             )
-                        return False
-        return True
+                        error_list.append(
+                            ErrorData(
+                                line_number=original_i,
+                                error_message=f"Parameter mismatch in function {func_name}",
+                            )
+                        )
+        return len(error_list) == 0

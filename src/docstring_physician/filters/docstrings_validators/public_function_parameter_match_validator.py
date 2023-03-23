@@ -1,5 +1,7 @@
 import re
+from typing import List
 
+from src.docstring_physician.filters.docstrings_validators.error_data import ErrorData
 from src.docstring_physician.filters.docstrings_validators.validator_base import (
     DocstringValidatorBase,
 )
@@ -9,15 +11,21 @@ from src.docstring_physician.parsers.param_parser.param_parser import (
 
 
 class PublicFunctionParameterMatchValidator(DocstringValidatorBase):
-    def check(self, content: str, verbosity: bool = True) -> bool:
+    def check(
+        self, content: str, error_list: List[ErrorData] = [], verbosity: bool = True
+    ) -> bool:
         """
         Checks if all public functions in the content parameter have docstrings
         with descriptions for all of their parameters.
 
         :param content: Text of Python script.
+        :param error_list: List of ErrorData objects to store any errors found.
         :param verbosity: If True, displays a message before returning False.
         :return: True if all public functions have parameter descriptions, else False.
         """
+
+        error_found = False
+
         for i in range(len(content) - 1):
             line = content[i].strip()
             if line.startswith("def"):
@@ -57,9 +65,13 @@ class PublicFunctionParameterMatchValidator(DocstringValidatorBase):
                         [parameter.name for parameter in function_parameters]
                     ).issubset(set(docstring_parameters)):
                         if verbosity:
-                            print(
-                                f"{original_i}: Function {func_name} is missing parameter descriptions in its docstring."
-                            )
-                        # Parameter mismatch between docstring and function signature
-                        return False
-        return True
+                            message = f"Function {func_name} is missing parameter descriptions in its docstring."
+                            error_list.append(ErrorData(original_i, message))
+                            error_found = True
+
+        if error_found:
+            if verbosity:
+                print("Errors found while checking docstrings.")
+            return False
+        else:
+            return True
