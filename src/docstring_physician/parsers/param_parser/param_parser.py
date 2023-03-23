@@ -1,60 +1,60 @@
 import copy
+import re
 from typing import List, Tuple
 
 from src.docstring_physician.parsers.param_parser.data import ParameterData
 
 
 class ParametersExtractor:
-    """
-    Extracts parameters from a python function header.
-
-    :param content: python file content as a list of lines
-    """
-
     def __init__(self, content: List[str]):
-        self.content = content
+        self.content = self._extract_first_function(content)
+
+    def _extract_first_function(self, content: List[str]) -> List[str]:
+        content_str = "".join(content)
+
+        # Locate the first function definition
+        function_match = re.search(r"\bdef\b\s+\w+\s*\(", content_str)
+        if not function_match:
+            return []
+
+        # Locate the end of the first function definition
+        open_brackets = 1
+        end_index = function_match.end()
+        while open_brackets > 0 and end_index < len(content_str):
+            if content_str[end_index] == "(":
+                open_brackets += 1
+            elif content_str[end_index] == ")":
+                open_brackets -= 1
+            end_index += 1
+
+        first_function_str = content_str[function_match.start() : end_index]
+        return first_function_str.split("\n")
 
     def extract_parameters(
         self,
-        start_index: int = 0,
-        end_index: int = -1,
         ignored_parameters=["cls", "self", "__class__"],
     ) -> List[ParameterData]:
-        """
-        Parses the text between start_index and end_index and extracts the parameters if any.
 
-        :param start_index: start index of the text to parse
-        :param end_index: end index of the text to parse, if -1 then the end of the content
-        :return: list of parameters extracted
-        """
+        content_str = "".join(self.content).replace("\n", " ")
 
-        if end_index == -1:
-            end_index = len(self.content) - 1
+        # Extract the parameter string
+        parameter_start = content_str.find("(") + 1
+        parameter_end = content_str.find(")")
+        parameters_text = content_str[parameter_start:parameter_end]
 
-        parameters_text = "".join(self.content[start_index : end_index + 1]).replace(
-            "\n", " "
+        # A regex pattern to correctly handle parameters with and without type hints
+        pattern = re.compile(
+            r"\s*(?P<name>\w+)\s*(?::\s*(?P<type>(?:(?:[^\s,=]+\[.*?\])|(?:[^\s,=]+)))\s*)?(?:=\s*(?P<default>[^,]+))?\s*(?:,|$)"
         )
-        parameters_text = parameters_text[
-            parameters_text.find("(") + 1 : parameters_text.rfind(")")
-        ]
 
         parameters = []
-        for parameter in parameters_text.split(","):
-            parameter = parameter.strip()
-            if parameter:
-                parameter_name = parameter.split(":")[0].strip()
-                parameter_type = (
-                    parameter.split(":")[1].strip()
-                    if len(parameter.split(":")) > 1
-                    else ""
-                )
+        for match in pattern.finditer(parameters_text):
+            name, type_hint, default_value = match.groups()
+            if type_hint is None:
+                type_hint = ""
+            if default_value is None:
                 default_value = ""
-                if "=" in parameter_type:
-                    default_value = parameter_type.split("=")[1].strip()
-                    parameter_type = parameter_type.split("=")[0].strip()
-                parameters.append(
-                    ParameterData(parameter_name, parameter_type, default_value)
-                )
+            parameters.append(ParameterData(name, type_hint, default_value))
 
         parameters = [
             parameter
@@ -63,21 +63,6 @@ class ParametersExtractor:
         ]
 
         return parameters
-
-    def extract_parameter_names(
-        self, start_index: int = 0, end_index: int = -1
-    ) -> List[str]:
-        """
-        Parses the text between start_index and end_index and extracts the names of the parameters if any.
-
-        :param start_index: start index of the text to parse
-        :param end_index: end index of the text to parse, if -1 then the end of the content
-        :return: list of parameter names extracted
-        """
-        return [
-            parameter.name
-            for parameter in self.extract_parameters(start_index, end_index)
-        ]
 
     def replace_parameters(
         self,

@@ -23,6 +23,7 @@ def test_parameter_extractor():
     expected = [ParameterData("param_a", "int"), ParameterData("param_b", "str")]
 
     # compare elem by elem
+    assert len(expected) == len(parameters)
     for param, expected_param in zip(parameters, expected):
         assert param.name == expected_param.name
         assert param.type_hint == expected_param.type_hint
@@ -54,6 +55,7 @@ def test_parameter_extractor():
     ]
 
     # compare elem by elem
+    assert len(expected) == len(parameters)
     for param, expected_param in zip(parameters, expected):
         assert param.name == expected_param.name
         assert param.type_hint == expected_param.type_hint
@@ -96,6 +98,72 @@ def test_parameter_extractor():
     ]
 
     # compare elem by elem
+    assert len(expected) == len(parameters)
+    for param, expected_param in zip(parameters, expected):
+        assert param.name == expected_param.name
+        assert param.type_hint == expected_param.type_hint
+
+    # function with function annotations
+
+    function_in_code = """
+    def evaluate(
+        self,
+        sample_locations: np.ndarray,
+        samples: Union[List, np.ndarray],
+        get_error: Callable[..., float],
+        error_args: Optional[Tuple] = None,
+        error_kwargs: Optional[Dict[str, Any]] = None,
+    ) -> np.ndarray:
+        \"\"\"
+        Docstrings shouldn't be touched.
+        \"\"\"
+        return np.zeros(10)
+    """
+
+    extractor = ParametersExtractor(function_in_code.split("\n"))
+    parameters = extractor.extract_parameters()
+
+    expected = [
+        ParameterData("sample_locations", "np.ndarray"),
+        ParameterData("samples", "Union[List, np.ndarray]"),
+        ParameterData("get_error", "Callable[..., float]"),
+        ParameterData("error_args", "Optional[Tuple]", "None"),
+        ParameterData("error_kwargs", "Optional[Dict[str, Any]]", "None"),
+    ]
+
+    # compare elem by elem
+    assert len(expected) == len(parameters)
+    for param, expected_param in zip(parameters, expected):
+        assert param.name == expected_param.name
+        assert param.type_hint == expected_param.type_hint
+        assert param.default_value == expected_param.default_value
+
+    function_in_code = """
+        def some_other_function(
+                                param_a,
+                                param_b = None,
+                                param_c=None
+                                ):
+            \"\"\"
+            Docstrings shouldn't be touched.
+            \"\"\"
+            return param_a + param_b + param_c
+
+        """.split(
+        "\n"
+    )
+
+    extractor = ParametersExtractor(function_in_code)
+    parameters = extractor.extract_parameters()
+
+    expected = [
+        ParameterData("param_a", ""),
+        ParameterData("param_b", ""),
+        ParameterData("param_c", ""),
+    ]
+
+    # compare elem by elem
+    assert len(expected) == len(parameters)
     for param, expected_param in zip(parameters, expected):
         assert param.name == expected_param.name
         assert param.type_hint == expected_param.type_hint

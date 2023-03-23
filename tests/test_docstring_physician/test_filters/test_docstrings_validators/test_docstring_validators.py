@@ -1,5 +1,6 @@
-from src.docstring_physician.filters.docstrings_validators.class_init_parameter_match_validator import \
-    ClassInitParameterMatchValidator
+from src.docstring_physician.filters.docstrings_validators.class_init_parameter_match_validator import (
+    ClassInitParameterMatchValidator,
+)
 from src.docstring_physician.filters.docstrings_validators.module_docstring_validator import (
     ModuleDocstringValidator,
 )
@@ -273,6 +274,7 @@ def test_public_function_parameter_mismatch_filter():
         "\n"
     )
     assert filter.check(content)
+
 
 def test_class_init_parameter_docstring_validator():
     # Correct docstring: all class __init__ methods have parameter descriptions

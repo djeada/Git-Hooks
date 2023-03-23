@@ -39,8 +39,9 @@ from src.docstring_physician.filters.docstrings_filters.sentence_punctuation_fil
 from src.docstring_physician.filters.docstrings_filters.third_person_filter import (
     ThirdPersonFilter,
 )
-from src.docstring_physician.filters.docstrings_validators.class_init_parameter_match_validator import \
-    ClassInitParameterMatchValidator
+from src.docstring_physician.filters.docstrings_validators.class_init_parameter_match_validator import (
+    ClassInitParameterMatchValidator,
+)
 from src.docstring_physician.filters.docstrings_validators.module_docstring_validator import (
     ModuleDocstringValidator,
 )

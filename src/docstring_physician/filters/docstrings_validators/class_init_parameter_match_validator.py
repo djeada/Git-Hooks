@@ -1,11 +1,12 @@
 import re
 from typing import List
 
-from src.docstring_physician.filters.docstrings_validators.validator_base import \
-    DocstringValidatorBase
-from src.docstring_physician.parsers.param_parser.param_parser import \
-    ParametersExtractor
-
+from src.docstring_physician.filters.docstrings_validators.validator_base import (
+    DocstringValidatorBase,
+)
+from src.docstring_physician.parsers.param_parser.param_parser import (
+    ParametersExtractor,
+)
 
 
 class ClassInitParameterMatchValidator(DocstringValidatorBase):
@@ -53,13 +54,13 @@ class ClassInitParameterMatchValidator(DocstringValidatorBase):
                 # Find the end index of the __init__ method
                 init_end = i
                 while init_end < len(content) and not content[
-                    init_end].strip().startswith("def"):
+                    init_end
+                ].strip().startswith("def"):
                     init_end += 1
 
                 # Extract __init__ method parameters
                 extractor = ParametersExtractor(content)
-                init_parameters = extractor.extract_parameters(init_start,
-                                                               init_end)
+                init_parameters = extractor.extract_parameters(init_start, init_end)
 
                 # Find class docstring content
                 if class_docstring_start != -1:
@@ -75,13 +76,18 @@ class ClassInitParameterMatchValidator(DocstringValidatorBase):
                             class_docstring_content.append(docstring_line)
 
                     class_docstring = " ".join(class_docstring_content).strip()
-                    class_docstring_parameters = re.findall(r":param ([^:]+):", class_docstring)
+                    class_docstring_parameters = re.findall(
+                        r":param ([^:]+):", class_docstring
+                    )
                     # Debug info
-                    print("Init parameters: ",
-                          [parameter.name for parameter in init_parameters])
-                    print("Class docstring parameters: ",
-                          class_docstring_parameters)
-                    if not set([parameter.name for parameter in init_parameters]).issubset(set(class_docstring_parameters)):
+                    print(
+                        "Init parameters: ",
+                        [parameter.name for parameter in init_parameters],
+                    )
+                    print("Class docstring parameters: ", class_docstring_parameters)
+                    if not set(
+                        [parameter.name for parameter in init_parameters]
+                    ).issubset(set(class_docstring_parameters)):
                         if verbosity:
                             print(
                                 f"{class_docstring_start}: Class {class_name} is missing __init__ parameter descriptions in its docstring."
