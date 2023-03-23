@@ -7,7 +7,7 @@ from src.docstring_physician.parsers.param_parser.data import ParameterData
 
 class ParametersExtractor:
     def __init__(self, content: List[str]):
-        self.content = self._extract_first_function(content)
+        self.content = content
 
     def _extract_first_function(self, content: List[str]) -> List[str]:
         content_str = "".join(content)
@@ -32,10 +32,13 @@ class ParametersExtractor:
 
     def extract_parameters(
         self,
+        start_index=0,
+        end_index=-1,
         ignored_parameters=["cls", "self", "__class__"],
     ) -> List[ParameterData]:
 
-        content_str = "".join(self.content).replace("\n", " ")
+        content_str = self._extract_first_function(self.content)
+        content_str = "".join(content_str).replace("\n", " ")
 
         # Extract the parameter string
         parameter_start = content_str.find("(") + 1
@@ -63,6 +66,20 @@ class ParametersExtractor:
         ]
 
         return parameters
+
+    def extract_parameter_names(
+        self, start_index: int = 0, end_index: int = -1
+    ) -> List[str]:
+        """
+        Parses the text between start_index and end_index and extracts the names of the parameters if any.
+        :param start_index: start index of the text to parse
+        :param end_index: end index of the text to parse, if -1 then the end of the content
+        :return: list of parameter names extracted
+        """
+        return [
+            parameter.name
+            for parameter in self.extract_parameters(start_index, end_index)
+        ]
 
     def replace_parameters(
         self,

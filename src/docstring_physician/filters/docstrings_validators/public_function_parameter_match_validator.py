@@ -33,7 +33,7 @@ class PublicFunctionParameterMatchValidator(DocstringValidatorBase):
                     end_index += 1
                     line = content[end_index].strip()
 
-                extractor = ParametersExtractor(content)
+                extractor = ParametersExtractor(content[i:])
                 function_parameters = extractor.extract_parameters(i, end_index)
 
                 next_line = end_index + 1

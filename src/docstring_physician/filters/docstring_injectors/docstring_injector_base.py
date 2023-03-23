@@ -95,7 +95,7 @@ class AddMissingDocstrings(ScriptFilterBase):
                 if content[end_index + 1].strip() not in possible_docstring_start:
                     # find the parameters of the function between ()
 
-                    extractor = ParametersExtractor(content)
+                    extractor = ParametersExtractor(content[i:])
                     parameters = extractor.extract_parameter_names(i, end_index)
 
                     # add docstring

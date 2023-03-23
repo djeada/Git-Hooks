@@ -39,7 +39,7 @@ class EnforceParameterOrderFilter(DocstringFilterBase):
         if i == -1:
             return content
 
-        extractor = ParametersExtractor(content)
+        extractor = ParametersExtractor(content[i:])
         extracted_parameters = extractor.extract_parameter_names(
             i, docstring_start_index
         )

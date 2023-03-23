@@ -59,7 +59,7 @@ class ClassInitParameterMatchValidator(DocstringValidatorBase):
                     init_end += 1
 
                 # Extract __init__ method parameters
-                extractor = ParametersExtractor(content)
+                extractor = ParametersExtractor(content[i:])
                 init_parameters = extractor.extract_parameters(init_start, init_end)
 
                 # Find class docstring content

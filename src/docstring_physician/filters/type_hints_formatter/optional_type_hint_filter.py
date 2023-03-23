@@ -45,7 +45,7 @@ class TypeHintsFormatter:
 
                 # replace the parameters in the file
 
-                content = extractor.replace_parameters(parameters, i, end_index)
+                content = extractor.replace_parameters(parameters)
 
             i += 1
 
